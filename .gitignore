@@ -1,0 +1,14 @@
+*.a
+*.map
+*dk
+*.elf
+*.bin
+*.hex
+*.wismote
+obj_*
+*.txt
+*.log
+*.pcap
+*~
+*xx
+*cooja
