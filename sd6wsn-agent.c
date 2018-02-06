@@ -51,7 +51,7 @@
 #include "net/rpl/rpl.h"
 #include "sys/clock.h"
 
-#define DEBUG DEBUG_NONE
+#define DEBUG DEBUG_PRINT
 #include "net/ip/uip-debug.h"
 
 #ifndef PING_PROBE
