@@ -167,10 +167,6 @@ flow_mod_handler(void *request, void *response, char *buffer,
 		snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
 		flow_table[table_index].txpwr=atoi(buffer);
 	}
-	if ((len = REST.get_query_variable(request, "rfchannel", &str))) {
-		snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
-		flow_table[table_index].rfchannel=atoi(buffer);
-	}
 	PRINTF("flowid: %d\n", flow_table[table_index].flowid);
 	PRINTF("ipv6src: ");
 	PRINT6ADDR(&flow_table[table_index].ipv6src);
