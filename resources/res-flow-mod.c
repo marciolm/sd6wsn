@@ -85,9 +85,19 @@ uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstad
 	PRINTF("\n");
 	if(table_pos>table_entry) {
 		PRINTF("flow not found\n");
-		return NULL;
+		return NULL;     // run the Packet-in function
 	}else {
-		return &flow_table[table_pos].nhipaddr;
+		if(flow_table[table_pos].action == 0 ) { // action = forward
+			PRINTF("next hop returned !\n");
+			return &flow_table[table_pos].nhipaddr;
+		} else {
+			if(flow_table[table_pos].action == 2 ) { // action = CPFoward
+				PRINTF("Control plane forwarding !\n");
+				return NULL;
+			} else {
+				return NULL; // action = drop
+			}
+		}
 	}
 }
 
@@ -115,69 +125,74 @@ flow_mod_handler(void *request, void *response, char *buffer,
 	snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
 	PRINTF("len %d\n", len); PRINTF("Query-all: %s\n", buffer);
 
-	len = REST.get_query_variable(request, "action", &str);
+	len = REST.get_query_variable(request, "operation", &str);
 	snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
-	PRINTF("action: %s\n", buffer);
-
-	if ((len = REST.get_query_variable(request, "flowid", &str))) {
-		snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
-		flowid_temp=atoi(buffer);
-		while(table_index<=table_entry){
-			if(flowid_temp == flow_table[table_index].flowid ) {
-				PRINTF("flowid entry found!\n");
-				existing_flow = 1;
-				break;
+	PRINTF("operation: %s\n", buffer);
+	if (buffer[0] == 'i') {
+		if ((len = REST.get_query_variable(request, "flowid", &str))) {
+			snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
+			flowid_temp=atoi(buffer);
+			while(table_index<=table_entry){
+				if(flowid_temp == flow_table[table_index].flowid ) {
+					PRINTF("flowid entry found!\n");
+					existing_flow = 1;
+					break;
+				}
+				table_index++;
 			}
-			table_index++;
+			if(!existing_flow) {  //if is a new flow, use the next empty table entry
+				table_index = table_entry;
+				table_entry++;
+			}
+			flow_table[table_index].flowid=flowid_temp;
 		}
-		if(!existing_flow) {  //if is a new flow, use the next empty table entry
-			table_index = table_entry;
-			table_entry++;
+		if ((len = REST.get_query_variable(request, "ipv6src", &str))) {
+			snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
+			uiplib_ip6addrconv(buffer, &tmp_addr);
+			flow_table[table_index].ipv6src=tmp_addr;
 		}
-		flow_table[table_index].flowid=flowid_temp;
+		if ((len = REST.get_query_variable(request, "ipv6dst", &str))) {
+			snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
+			uiplib_ip6addrconv(buffer, &tmp_addr);
+			flow_table[table_index].ipv6dst=tmp_addr;
+		}
+		if ((len = REST.get_query_variable(request, "srcport", &str))) {
+			snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
+			flow_table[table_index].srcport=atoi(buffer);
+		}
+		if ((len = REST.get_query_variable(request, "dstport", &str))) {
+			snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
+			flow_table[table_index].dstport=atoi(buffer);
+		}
+		if ((len = REST.get_query_variable(request, "ipproto", &str))) {
+			snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
+			flow_table[table_index].ipproto=atoi(buffer);
+		}
+		if ((len = REST.get_query_variable(request, "action", &str))) {
+			snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
+			flow_table[table_index].action=atoi(buffer);
+		}
+		if ((len = REST.get_query_variable(request, "nhipaddr", &str))) {
+			snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
+			uiplib_ip6addrconv(buffer, &tmp_addr);
+			flow_table[table_index].nhipaddr=tmp_addr;
+		}
+		if ((len = REST.get_query_variable(request, "txpwr", &str))) {
+			snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
+			flow_table[table_index].txpwr=atoi(buffer);
+		}
+		PRINTF("flowid: %d\n", flow_table[table_index].flowid);
+		PRINTF("ipv6src: ");
+		PRINT6ADDR(&flow_table[table_index].ipv6src);
+		PRINTF("\n");
+		PRINTF("ipv6dst: ");
+		PRINT6ADDR(&flow_table[table_index].ipv6dst);
+		PRINTF("\n");
+		PRINTF("nhipaddr: ");
+		PRINT6ADDR(&flow_table[table_index].nhipaddr);
+		PRINTF("\n");
+		PRINTF("txpwr: %d\n", flow_table[table_index].txpwr);
+		PRINTF("table entries=%d\n",table_entry);
+		// REST.set_response_status(response, REST.status.CHANGED);
 	}
-	if ((len = REST.get_query_variable(request, "ipv6src", &str))) {
-		snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
-		uiplib_ip6addrconv(buffer, &tmp_addr);
-		flow_table[table_index].ipv6src=tmp_addr;
-	}
-	if ((len = REST.get_query_variable(request, "ipv6dst", &str))) {
-		snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
-		uiplib_ip6addrconv(buffer, &tmp_addr);
-		flow_table[table_index].ipv6dst=tmp_addr;
-	}
-	if ((len = REST.get_query_variable(request, "srcport", &str))) {
-		snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
-		flow_table[table_index].srcport=atoi(buffer);
-	}
-	if ((len = REST.get_query_variable(request, "dstport", &str))) {
-		snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
-		flow_table[table_index].dstport=atoi(buffer);
-	}
-	if ((len = REST.get_query_variable(request, "ipproto", &str))) {
-		snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
-		flow_table[table_index].ipproto=atoi(buffer);
-	}
-	if ((len = REST.get_query_variable(request, "nhipaddr", &str))) {
-		snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
-		uiplib_ip6addrconv(buffer, &tmp_addr);
-		flow_table[table_index].nhipaddr=tmp_addr;
-	}
-	if ((len = REST.get_query_variable(request, "txpwr", &str))) {
-		snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
-		flow_table[table_index].txpwr=atoi(buffer);
-	}
-	PRINTF("flowid: %d\n", flow_table[table_index].flowid);
-	PRINTF("ipv6src: ");
-	PRINT6ADDR(&flow_table[table_index].ipv6src);
-	PRINTF("\n");
-	PRINTF("ipv6dst: ");
-	PRINT6ADDR(&flow_table[table_index].ipv6dst);
-	PRINTF("\n");
-	PRINTF("nhipaddr: ");
-	PRINT6ADDR(&flow_table[table_index].nhipaddr);
-	PRINTF("\n");
-	PRINTF("txpwr: %d\n", flow_table[table_index].txpwr);
-	PRINTF("table entries=%d\n",table_entry);
-	// REST.set_response_status(response, REST.status.CHANGED);
 }

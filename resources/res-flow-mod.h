@@ -7,6 +7,7 @@ typedef struct flow_s {
 	uint16_t srcport;
 	uint16_t dstport;
 	uint8_t ipproto;
+	uint8_t action;
 	uip_ipaddr_t nhipaddr;
 	uint8_t txpwr;
 }flow_s;
