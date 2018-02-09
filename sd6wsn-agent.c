@@ -31,10 +31,12 @@
 
 /**
  * \file
- *      Erbium (Er) REST Engine example.
- * \author
- *      Matthias Kovatsch <kovatsch@inf.ethz.ch>
+ *      sd6wsn-agent
+  * \author
+ *      Marcio Miguel <marcio.miguel@gmail.com> based on examples written
+ *      by Matthias Kovatsch <kovatsch@inf.ethz.ch>
  */
+
 
 #include <stdio.h>
 #include <stdlib.h>

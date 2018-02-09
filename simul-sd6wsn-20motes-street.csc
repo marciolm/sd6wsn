@@ -493,36 +493,37 @@ packetsSent = new Array();
 serverID = 1;
 nodeCount = 20;
 totalPRR = 0;
-
+sim.setSpeedLimit(1.0);
 for(i = 0; i &lt;= nodeCount; i++) {
 	packetsReceived[i] = 0;
 	packetsSent[i] = 0;
 }
 
 while(1) {
-	YIELD();
-	msgArray = msg.split(' ');
-	if(msgArray[0].equals("#A")) {
-		//if(msgArray[1].charAt(0) == 'r'){
-			// Received packet
-			senderID = id;
-            arr2 = msgArray[1].split(',')[0].slice(2).split('/');
-            recv = parseInt(arr2[0]);
-            sent = parseInt(arr2[1]);
-            log.log("Sent:" + sent + " Recv:" + recv + "\n");
-            packetsSent[senderID] = sent;
-			packetsReceived[senderID] = recv;
-
-			log.log("SenderID " + senderID + " PRR " + packetsReceived[senderID] / packetsSent[senderID] + "\n");
-			totalReceived = totalSent = 0;
-			for(i = serverID + 1; i &lt;= nodeCount; i++) {
-				totalReceived += packetsReceived[i];
-				totalSent += packetsSent[i];
-			}
-			totalPRR = totalReceived / totalSent;
-			log.log("Total PRR " + totalPRR + " recv " + totalReceived + " sent " + totalSent + "\n");
-		//}
-	}
+         YIELD();
+         msgArray = msg.split(' ');
+         if(msgArray[0].equals("#A")) {
+                  //if(msgArray[1].charAt(0) == 'r'){
+                  // Received packet
+                  senderID = id;
+                  arr2 = msgArray[1].split(',')[0].slice(2).split('/');
+                  recv = parseInt(arr2[0]);
+                  sent = parseInt(arr2[1]);
+                  log.log("Sent:" + sent + " Recv:" + recv + "\n");
+                  packetsSent[senderID] = sent;
+                  packetsReceived[senderID] = recv;
+                  log.log("SenderID " + senderID + " PRR " + packetsReceived[senderID] / packetsSent[senderID] + "\n");
+                  totalReceived = totalSent = 0;
+                  for(i = serverID + 1; i &lt;= nodeCount; i++) {
+                        totalReceived += packetsReceived[i];
+                        totalSent += packetsSent[i];
+                  }
+                  totalPRR = totalReceived / totalSent;
+                  log.log("Total PRR " + totalPRR + " recv " + totalReceived + " sent " + totalSent + "\n");
+         }
+         if(msgArray[0].equals("DATA")) {
+                 log.log(time + ":" + id + ":" + msg + "\n");
+         }
 }</script>
       <active>true</active>
     </plugin_config>
