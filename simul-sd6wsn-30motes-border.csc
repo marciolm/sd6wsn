@@ -11,7 +11,7 @@
   <simulation>
     <title>SDWSN</title>
     <speedlimit>1.0</speedlimit>
-    <randomseed>123456</randomseed>
+    <randomseed>123457</randomseed>
     <motedelay_us>1000000</motedelay_us>
     <radiomedium>
       org.contikios.cooja.radiomediums.UDGM
@@ -672,6 +672,16 @@
     <location_x>9</location_x>
     <location_y>485</location_y>
   </plugin>
+    <plugin>
+    be.cetic.cooja.plugins.RadioLoggerHeadless
+    <plugin_config />
+    <width>150</width>
+    <z>-1</z>
+    <height>300</height>
+    <location_x>1</location_x>
+    <location_y>403</location_y>
+    <minimized>true</minimized>
+  </plugin>
   <plugin>
     org.contikios.cooja.plugins.ScriptRunner
     <plugin_config>
@@ -679,7 +689,7 @@
 packetsReceived= new Array();
 packetsSent = new Array();
 serverID = 1;
-nodeCount = 31;
+nodeCount = 30;
 totalPRR = 0;
 
 for(i = 0; i &lt;= nodeCount; i++) {

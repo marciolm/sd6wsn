@@ -51,7 +51,7 @@
 #include "net/rpl/rpl.h"
 #include "sys/clock.h"
 
-#define DEBUG DEBUG_PRINT
+#define DEBUG DEBUG_FULL
 #include "net/ip/uip-debug.h"
 
 #ifndef PING_PROBE
@@ -107,10 +107,10 @@ AUTOSTART_PROCESSES(&er_example_server, &udp_client_process);
 #define UDP_EXAMPLE_ID  190
 
 #ifndef PERIOD
-#define PERIOD 10 //60
+#define PERIOD 30 //10 // 60
 #endif
 
-#define START_INTERVAL		(75 * CLOCK_SECOND)  //delay before start the test
+#define START_INTERVAL		(180 * CLOCK_SECOND)  //delay before start the test
 #define SEND_INTERVAL		(PERIOD * CLOCK_SECOND)
 #define SEND_TIME		(random_rand() % (SEND_INTERVAL))
 #define MAX_PAYLOAD_LEN		30

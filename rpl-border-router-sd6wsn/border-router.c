@@ -115,7 +115,7 @@ tcpip_handler(void)
 #if SERVER_REPLY
 		PRINTF("DATA sending reply\n");
 		uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
-		uip_udp_packet_send(server_conn, "Reply", sizeof("Reply"));
+		uip_udp_packet_send(server_conn, "Reply              ", sizeof("Reply              "));
 		uip_create_unspecified(&server_conn->ripaddr);
 #endif
 	}

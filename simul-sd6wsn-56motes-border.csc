@@ -1139,5 +1139,54 @@
     <location_x>11</location_x>
     <location_y>472</location_y>
   </plugin>
+    <plugin>
+    org.contikios.cooja.plugins.ScriptRunner
+    <plugin_config>
+      <script>TIMEOUT(300000, log.log("Total PRR " + totalPRR + "\n"));
+packetsReceived= new Array();
+packetsSent = new Array();
+serverID = 1;
+nodeCount = 56;
+totalPRR = 0;
+sim.setSpeedLimit(1.0);
+log.log(time + ":" + id + ":" + msg + "\n");
+for(i = 0; i &lt;= nodeCount; i++) {
+	packetsReceived[i] = 0;
+	packetsSent[i] = 0;
+}
+
+while(1) {
+	YIELD();
+	msgArray = msg.split(' ');
+	if(msgArray[0].equals("#A")) {
+		//if(msgArray[1].charAt(0) == 'r'){
+			// Received packet
+			senderID = id;
+            arr2 = msgArray[1].split(',')[0].slice(2).split('/');
+            recv = parseInt(arr2[0]);
+            sent = parseInt(arr2[1]);
+            log.log("Sent:" + sent + " Recv:" + recv + "\n");
+            packetsSent[senderID] = sent;
+			packetsReceived[senderID] = recv;
+
+			log.log("SenderID " + senderID + " PRR " + packetsReceived[senderID] / packetsSent[senderID] + "\n");
+			totalReceived = totalSent = 0;
+			for(i = serverID + 1; i &lt;= nodeCount; i++) {
+				totalReceived += packetsReceived[i];
+				totalSent += packetsSent[i];
+			}
+			totalPRR = totalReceived / totalSent;
+			log.log("Total PRR " + totalPRR + " recv " + totalReceived + " sent " + totalSent + "\n");
+		//}
+	}
+}</script>
+      <active>true</active>
+    </plugin_config>
+    <width>651</width>
+    <z>1</z>
+    <height>288</height>
+    <location_x>598</location_x>
+    <location_y>320</location_y>
+  </plugin>
 </simconf>
 

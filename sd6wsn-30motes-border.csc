@@ -639,13 +639,13 @@
       <skin>org.contikios.cooja.plugins.skins.UDGMVisualizerSkin</skin>
       <skin>org.contikios.cooja.plugins.skins.MoteTypeVisualizerSkin</skin>
       <skin>org.contikios.cooja.plugins.skins.TrafficVisualizerSkin</skin>
-      <viewport>6.5530303030303045 0.0 0.0 6.5530303030303045 216.67053107990327 63.745640982368826</viewport>
+      <viewport>6.5530303030303045 0.0 0.0 6.5530303030303045 73.67053107990334 39.74564098236882</viewport>
     </plugin_config>
-    <width>623</width>
-    <z>2</z>
-    <height>400</height>
-    <location_x>40</location_x>
-    <location_y>173</location_y>
+    <width>465</width>
+    <z>0</z>
+    <height>342</height>
+    <location_x>21</location_x>
+    <location_y>133</location_y>
   </plugin>
   <plugin>
     org.contikios.cooja.plugins.LogListener
@@ -655,10 +655,10 @@
       <coloring />
     </plugin_config>
     <width>872</width>
-    <z>0</z>
+    <z>3</z>
     <height>240</height>
-    <location_x>367</location_x>
-    <location_y>16</location_y>
+    <location_x>490</location_x>
+    <location_y>-5</location_y>
   </plugin>
   <plugin>
     org.contikios.cooja.serialsocket.SerialSocketServer
@@ -668,10 +668,10 @@
       <bound>true</bound>
     </plugin_config>
     <width>362</width>
-    <z>3</z>
+    <z>2</z>
     <height>116</height>
-    <location_x>10</location_x>
-    <location_y>442</location_y>
+    <location_x>-4</location_x>
+    <location_y>486</location_y>
   </plugin>
 </simconf>
 

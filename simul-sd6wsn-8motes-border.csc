@@ -27,9 +27,9 @@
       org.contikios.cooja.mspmote.WismoteMoteType
       <identifier>wismote1</identifier>
       <description>Wismote Mote Border Router</description>
-      <source EXPORT="discard">./rpl-border-router-sd6wsn/border-router.c</source>
+      <source EXPORT="discard">[CONTIKI_DIR]/examples/sd6wsn/rpl-border-router-sd6wsn/border-router.c</source>
       <commands EXPORT="discard">make border-router.wismote TARGET=wismote</commands>
-      <firmware EXPORT="copy">./rpl-border-router-sd6wsn/border-router.wismote</firmware>
+      <firmware EXPORT="copy">[CONTIKI_DIR]/examples/sd6wsn/rpl-border-router-sd6wsn/border-router.wismote</firmware>
       <moteinterface>org.contikios.cooja.interfaces.Position</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.RimeAddress</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.IPAddress</moteinterface>
@@ -47,9 +47,9 @@
       org.contikios.cooja.mspmote.WismoteMoteType
       <identifier>wismote2</identifier>
       <description>Wismote sd6wsn-agent</description>
-      <source EXPORT="discard">./sd6wsn-agent.c</source>
+      <source EXPORT="discard">[CONTIKI_DIR]/examples/sd6wsn/sd6wsn-agent.c</source>
       <commands EXPORT="discard">make sd6wsn-agent.wismote TARGET=wismote</commands>
-      <firmware EXPORT="copy">./sd6wsn-agent.wismote</firmware>
+      <firmware EXPORT="copy">[CONTIKI_DIR]/examples/sd6wsn/sd6wsn-agent.wismote</firmware>
       <moteinterface>org.contikios.cooja.interfaces.Position</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.RimeAddress</moteinterface>
       <moteinterface>org.contikios.cooja.interfaces.IPAddress</moteinterface>
@@ -229,10 +229,10 @@
   <plugin>
     org.contikios.cooja.plugins.SimControl
     <width>280</width>
-    <z>1</z>
+    <z>0</z>
     <height>160</height>
-    <location_x>287</location_x>
-    <location_y>-2</location_y>
+    <location_x>136</location_x>
+    <location_y>6</location_y>
   </plugin>
   <plugin>
     org.contikios.cooja.plugins.Visualizer
@@ -240,29 +240,28 @@
       <moterelations>true</moterelations>
       <skin>org.contikios.cooja.plugins.skins.IDVisualizerSkin</skin>
       <skin>org.contikios.cooja.plugins.skins.GridVisualizerSkin</skin>
-      <skin>org.contikios.cooja.plugins.skins.TrafficVisualizerSkin</skin>
       <skin>org.contikios.cooja.plugins.skins.UDGMVisualizerSkin</skin>
       <skin>org.contikios.cooja.plugins.skins.AttributeVisualizerSkin</skin>
-      <viewport>11.943489396664278 0.0 0.0 11.943489396664278 -627.4269135354762 -184.16120277974684</viewport>
+      <viewport>9.952907830553565 0.0 0.0 9.952907830553565 -583.6890946128967 -174.63433564978905</viewport>
     </plugin_config>
-    <width>563</width>
-    <z>2</z>
-    <height>400</height>
-    <location_x>88</location_x>
-    <location_y>71</location_y>
+    <width>444</width>
+    <z>3</z>
+    <height>320</height>
+    <location_x>18</location_x>
+    <location_y>204</location_y>
   </plugin>
   <plugin>
     org.contikios.cooja.plugins.LogListener
     <plugin_config>
-      <filter>ID:3</filter>
+      <filter />
       <formatted_time />
       <coloring />
     </plugin_config>
-    <width>791</width>
-    <z>0</z>
+    <width>840</width>
+    <z>2</z>
     <height>309</height>
-    <location_x>561</location_x>
-    <location_y>5</location_y>
+    <location_x>495</location_x>
+    <location_y>2</location_y>
   </plugin>
   <plugin>
     org.contikios.cooja.serialsocket.SerialSocketServer
@@ -281,10 +280,11 @@
     be.cetic.cooja.plugins.RadioLoggerHeadless
     <plugin_config />
     <width>150</width>
-    <z>5</z>
+    <z>-1</z>
     <height>300</height>
     <location_x>1</location_x>
     <location_y>403</location_y>
+    <minimized>true</minimized>
   </plugin>
   <plugin>
     org.contikios.cooja.plugins.ScriptRunner
@@ -295,7 +295,8 @@ packetsSent = new Array();
 serverID = 1;
 nodeCount = 9;
 totalPRR = 0;
-
+sim.setSpeedLimit(1.0);
+log.log(time + ":" + id + ":" + msg + "\n");
 for(i = 0; i &lt;= nodeCount; i++) {
 	packetsReceived[i] = 0;
 	packetsSent[i] = 0;
@@ -329,10 +330,10 @@ while(1) {
       <active>true</active>
     </plugin_config>
     <width>651</width>
-    <z>3</z>
-    <height>550</height>
-    <location_x>639</location_x>
-    <location_y>47</location_y>
+    <z>1</z>
+    <height>288</height>
+    <location_x>598</location_x>
+    <location_y>320</location_y>
   </plugin>
 </simconf>
 

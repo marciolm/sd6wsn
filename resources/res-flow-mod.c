@@ -39,7 +39,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "rest-engine.h"
-#define DEBUG DEBUG_PRINT
+#define DEBUG DEBUG_NONE
 #include "net/ip/uip-debug.h"
 #include "res-flow-mod.h"
 
@@ -84,15 +84,15 @@ uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstad
 	PRINT6ADDR(&flow_table[table_pos].ipv6dst);
 	PRINTF("\n");
 	if(table_pos>table_entry) {
-		PRINTF("flow not found\n");
+	//	PRINTF("flow not found\n");
 		return NULL;     // run the Packet-in function
 	}else {
 		if(flow_table[table_pos].action == 0 ) { // action = forward
-			PRINTF("next hop returned !\n");
+	//		PRINTF("next hop returned !\n");
 			return &flow_table[table_pos].nhipaddr;
 		} else {
-			if(flow_table[table_pos].action == 2 ) { // action = CPFoward
-				PRINTF("Control plane forwarding !\n");
+			if(flow_table[table_pos].action == 2 ) { // action = CPForward
+	//			PRINTF("Control plane forwarding !\n");
 				return NULL;
 			} else {
 				return NULL; // action = drop
