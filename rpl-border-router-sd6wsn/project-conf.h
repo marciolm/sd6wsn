@@ -45,9 +45,9 @@
 #ifndef WITH_NON_STORING
 #define WITH_NON_STORING 0 /* Set this to run with non-storing mode */
 #undef UIP_CONF_MAX_ROUTES
-#define UIP_CONF_MAX_ROUTES 60   //30
+#define UIP_CONF_MAX_ROUTES 30   //60 //30
 #undef NBR_TABLE_CONF_MAX_NEIGHBORS
-#define NBR_TABLE_CONF_MAX_NEIGHBORS 8 // 8 ok
+#define NBR_TABLE_CONF_MAX_NEIGHBORS 20 // 8 ok
 
 #endif /* WITH_NON_STORING */
 
