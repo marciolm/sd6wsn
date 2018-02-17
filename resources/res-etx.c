@@ -51,7 +51,7 @@ typedef struct etx_s {
 	rpl_parent_t * p;
 }etx_s ;
 
-etx_s etx_table[10];
+etx_s etx_table[NBR_TABLE_CONF_MAX_NEIGHBORS]; // number of neighbors configured
 uint8_t parent_index;
 
 static void res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);

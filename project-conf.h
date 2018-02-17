@@ -61,7 +61,7 @@
 #undef UIP_CONF_MAX_ROUTES
 #define UIP_CONF_MAX_ROUTES 30   //30 original
 #undef NBR_TABLE_CONF_MAX_NEIGHBORS
-#define NBR_TABLE_CONF_MAX_NEIGHBORS 8 //8 ok // 30 original
+#define NBR_TABLE_CONF_MAX_NEIGHBORS 20 //12 try //8 ok // 30 original
 #endif /* WITH_NON_STORING */
 
 /*Test for Wireshark */
@@ -122,4 +122,4 @@
 #define SERVER_REPLY 1
 #undef RPL_CONF_STATS
 #define RPL_CONF_STATS 1
-#define PING_PROBE 1
+#define PING_PROBE 0
