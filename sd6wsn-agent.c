@@ -74,6 +74,7 @@ extern resource_t res_rssi;
 extern resource_t res_etx;
 extern resource_t res_routes;
 extern resource_t res_flow_mod;
+extern resource_t res_packet_in;
 
 #if PLATFORM_HAS_BUTTON
 #include "dev/button-sensor.h"
@@ -287,6 +288,7 @@ PROCESS_THREAD(er_example_server, ev, data)
 	rest_activate_resource(&res_rssi, "sd6wsn/info-get/rssi");
 	rest_activate_resource(&res_etx, "sd6wsn/info-get/nbr-etx");
 	rest_activate_resource(&res_flow_mod, "sd6wsn/flow-mod");
+	rest_activate_resource(&res_packet_in, "sd6wsn/packet-in");
 	rest_activate_resource(&res_routes, "sd6wsn/info-get/routes");
 #ifdef CPU_HAS_MSP430X
 	rest_activate_resource(&res_cc2520_txpower, "sd6wsn/info-get/txpower");

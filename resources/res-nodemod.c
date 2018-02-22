@@ -51,6 +51,7 @@
 /* debug */
 #define DEBUG DEBUG_FULL
 #include "net/ip/uip-debug.h"
+uint8_t count;
 
 uint16_t ipaddr_last_chunk(const uip_ipaddr_t *addr, char *buffer);
 static void node_mod_handler(void *request, void *response, char *buffer,
@@ -79,7 +80,6 @@ void node_mod_handler(void* request, void* response, char *buffer,
 	uip_ds6_route_t *r;
 	volatile uint8_t i;
 	uint16_t n = 0;
-	uint8_t count;
 
 	/* count the number of routes and return the total */
 	count = uip_ds6_route_num_routes();
@@ -103,19 +103,14 @@ void node_mod_handler(void* request, void* response, char *buffer,
 	REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "%s", buffer));
 }
 
-/*
- * Additionally, a handler function named [resource name]_handler must be implemented for each PERIODIC_RESOURCE.
- * It will be called by the REST manager process with the defined period.
- */
 static void
 res_periodic_node_mod_handler()
 {
-	/* Do a periodic task here, e.g., sampling a sensor. */
-
-	/* Usually a condition is defined under with subscribers are notified, e.g., large enough delta in sensor reading. */
 	if(1) {
-		/* Notify the registered observers which will trigger the res_get_handler to create the response. */
-		REST.notify_subscribers(&res_node_mod);
+		if(count != uip_ds6_route_num_routes()) {
+			/* Notify the registered observers which will trigger the res_get_handler to create the response. */
+			REST.notify_subscribers(&res_node_mod);
+		}
 	}
 }
 

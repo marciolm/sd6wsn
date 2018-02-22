@@ -1,7 +1,7 @@
 var coap = require('coap')
 var hostprefix = "fd00::200:0:0:"
 var index = 1
-var rootnode = 8
+var rootnode = 4
 var nodesaddresses = {}
 
 function objToString (obj) {
@@ -14,7 +14,7 @@ function objToString (obj) {
     return str;
 }
 
-var req = coap.request({ method: 'GET' , host: hostprefix + rootnode , pathname: '/sd6wsn/nbr-etx', observe: true })
+var req = coap.request({ method: 'GET' , host: hostprefix + rootnode , pathname: '/sd6wsn/info-get/nbr-etx', observe: true })
 req.setOption('Max-Age', 130)
     .on('response', function (res) {
       res.on('data', function (res2) {

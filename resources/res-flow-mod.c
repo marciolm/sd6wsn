@@ -39,7 +39,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "rest-engine.h"
-#define DEBUG DEBUG_NONE
+#include "er-coap-engine.h"
+#define DEBUG DEBUG_PRINT
 #include "net/ip/uip-debug.h"
 #include "res-flow-mod.h"
 
@@ -47,7 +48,6 @@ flow_s flow_table[32];
 static uint8_t table_entry = 0;
 uip_ipaddr_t tmp_addr;
 static int table_pos;
-uip_ipaddr_t ipaddr;
 static int table_index;
 
 uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstaddress,uint16_t *srcport,uint16_t *dstport,uint8_t *proto){
@@ -196,3 +196,42 @@ flow_mod_handler(void *request, void *response, char *buffer,
 		// REST.set_response_status(response, REST.status.CHANGED);
 	}
 }
+void packet_in_handler(void* request, void* response, char *buffer,
+		uint16_t preferred_size, int32_t *offset);
+static void
+res_periodic_packet_in_handler();
+
+PERIODIC_RESOURCE(res_packet_in, "title=\"Packet-in\";rt=\"Text\";obs",
+		packet_in_handler, //get
+		NULL,//post
+		NULL,//put
+		NULL,//delete
+		30 * CLOCK_SECOND,
+		res_periodic_packet_in_handler);
+
+void packet_in_handler(void* request, void* response, char *buffer,
+		uint16_t preferred_size, int32_t *offset) {
+
+	volatile uint8_t i;
+	uint16_t n = 0;
+
+	n += sprintf(&(buffer[n]), "{\"packetin\":\"");
+	n += sprintf(&(buffer[n]), "10\"}");
+
+    PRINTF("packet_in_handler\n");
+	REST.set_header_content_type(response, APPLICATION_JSON);
+	REST.set_header_max_age(response, res_packet_in.periodic->period / CLOCK_SECOND);
+	//*offset = -1;  // try to fix Copper response
+	REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "%s", buffer));
+}
+
+static void
+res_periodic_packet_in_handler()
+{
+	if(1) {
+		PRINTF("packet_in_periodic_handler\n");
+		/* Notify the registered observers which will trigger the res_get_handler to create the response. */
+		REST.notify_subscribers(&res_packet_in);
+	}
+}
+

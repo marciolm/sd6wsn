@@ -3,7 +3,7 @@ var hostprefix = "fd00::200:0:0:"
 var index = 1
 var rootnode = 4
 var nodesaddresses = {}
-var req = coap.request({ method: 'GET' , host: hostprefix + rootnode , pathname: '/sd6wsn/info-get/nbr-etx', observe: false })
+var req = coap.request({ method: 'GET' , host: hostprefix + rootnode , pathname: '/sd6wsn/info-get/rssi', observe: true })
 	
 	req.setOption('Max-Age', 130)
 	req.on('response',function(res){
