@@ -94,12 +94,11 @@ function flowCalc(srcnode, dstnode) {
 	console.log(flowpath[flowidtemp])  // [ 'n5', 'n6', 'n1' ]
 	for(var prop in flowpath[flowidtemp]) flowpathsize ++   // count number of nodes in path
 	for(var nodeinpath = 0; nodeinpath < flowpathsize; nodeinpath++) {
+	ipv6srctemp = hostprefix + flowpath[flowidtemp][0].slice(1)
 		if(nodeinpath < flowpathsize - 1){ // do until the penultimate node
 			var installnodetemp = hostprefix + flowpath[flowidtemp][nodeinpath].slice(1) 
 			var nxhoptemp = nexthopprefix + flowpath[flowidtemp][nodeinpath+1].slice(1) //next node of flow 
-			if(nodeinpath > 0) ipv6srctemp = hostprefix + flowpath[flowidtemp][nodeinpath-1].slice(1)  //is not the start of flow
-			else ipv6srctemp = installnodetemp //the node is the origin	    
-			if(flowpath[flowidtemp][flowpathsize-1].slice(1) == 1) ipv6dsttemp="fd00::200:0:0:1"   //if the last node is the root, change the dst to ::
+			if(flowpath[flowidtemp][flowpathsize-1].slice(1) == 1) ipv6dsttemp="fd00::200:0:0:1"   //if the last node is the root, change the dst to root
 			else ipv6dsttemp = hostprefix + flowpath[flowidtemp][flowpathsize-1].slice(1) // else, dst is the last node of path
 			installevent ++	     	
 			console.log("installnode:" + installnodetemp + " ipvsrc:"  + ipv6srctemp + " ipv6dst:" + ipv6dsttemp + " nxhop:" + nxhoptemp + " installevent:" + installevent + " flowid:" + flowidtemp)

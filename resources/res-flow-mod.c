@@ -50,6 +50,18 @@ uip_ipaddr_t tmp_addr;
 static int table_pos;
 static int table_index;
 
+void packet_in_handler(void* request, void* response, char *buffer,
+		uint16_t preferred_size, int32_t *offset);
+static void
+res_event_packet_in_handler();
+
+EVENT_RESOURCE(res_packet_in, "title=\"Packet-in\";rt=\"Text\";obs",
+		packet_in_handler, //get
+		NULL,//post
+		NULL,//put
+		NULL,//delete
+		res_event_packet_in_handler);
+
 uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstaddress,uint16_t *srcport,uint16_t *dstport,uint8_t *proto){
 
 	table_pos = 0;
@@ -59,7 +71,7 @@ uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstad
 	//PRINTF("\nget_next_hop_by_flow dstaddress:");
 	//PRINT6ADDR(dstaddress);
 	//PRINTF("\n");
-	if(dstport == 5683 && srcport == 5683 ) {
+	if(dstport == 5683 || srcport == 5683 ) {
 		return NULL;
 	}
 	PRINTF("\nnumber of table_entries: %d\n",table_entry);
@@ -84,11 +96,21 @@ uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstad
 	PRINT6ADDR(&flow_table[table_pos].ipv6dst);
 	PRINTF("\n");
 	if(table_pos>table_entry) {
-	//	PRINTF("flow not found\n");
+	//	PRINTF("packet-in flow not found\n");
+		PRINTF("\npacket-in srcaddress:");
+		PRINT6ADDR(srcaddress);
+		PRINTF("\npacket-in dstaddress:");
+		PRINT6ADDR(dstaddress);
+		PRINTF("\npacket-in srcport:%d",srcport);
+		PRINTF("\npacket-in dstport:%d",dstport);
+		PRINTF("\n");
+		res_packet_in.trigger();
 		return NULL;     // run the Packet-in function
 	}else {
 		if(flow_table[table_pos].action == 0 ) { // action = forward
-	//		PRINTF("next hop returned !\n");
+			PRINTF("next hop returned: ");
+			PRINT6ADDR(&flow_table[table_pos].nhipaddr);
+			PRINTF("\n");
 			return &flow_table[table_pos].nhipaddr;
 		} else {
 			if(flow_table[table_pos].action == 2 ) { // action = CPForward
@@ -105,7 +127,8 @@ static void
 flow_mod_handler(void *request, void *response, char *buffer,
 		uint16_t preferred_size, int32_t *offset);
 
-RESOURCE(res_flow_mod, "title=\"Flow-mod\";rt=\"Text\"", NULL, //get
+RESOURCE(res_flow_mod, "title=\"Flow-mod\";rt=\"Text\"",
+		NULL, //get
 		NULL,//post
 		flow_mod_handler,//put
 		NULL);//delete
@@ -196,18 +219,6 @@ flow_mod_handler(void *request, void *response, char *buffer,
 		// REST.set_response_status(response, REST.status.CHANGED);
 	}
 }
-void packet_in_handler(void* request, void* response, char *buffer,
-		uint16_t preferred_size, int32_t *offset);
-static void
-res_periodic_packet_in_handler();
-
-PERIODIC_RESOURCE(res_packet_in, "title=\"Packet-in\";rt=\"Text\";obs",
-		packet_in_handler, //get
-		NULL,//post
-		NULL,//put
-		NULL,//delete
-		30 * CLOCK_SECOND,
-		res_periodic_packet_in_handler);
 
 void packet_in_handler(void* request, void* response, char *buffer,
 		uint16_t preferred_size, int32_t *offset) {
@@ -226,12 +237,12 @@ void packet_in_handler(void* request, void* response, char *buffer,
 }
 
 static void
-res_periodic_packet_in_handler()
+res_event_packet_in_handler()
 {
 	if(1) {
 		PRINTF("packet_in_periodic_handler\n");
 		/* Notify the registered observers which will trigger the res_get_handler to create the response. */
-		REST.notify_subscribers(&res_packet_in);
+		//REST.notify_subscribers(&res_packet_in);
 	}
 }
 
