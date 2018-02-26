@@ -19,9 +19,10 @@ req.setOption('Max-Age', 130)
     .on('response', function (res) {
       res.on('data', function (res2) {
       console.log('tipo: ' + typeof(res2))
-      nodeaddr = JSON.parse(objToString(res2))
-      console.log("nodeaddr.nodes:",nodeaddr.packetin)
-      console.log('tipo nodeaddr: ' + typeof(nodeaddr))
+      resp = JSON.parse(objToString(res2))
+      console.log("resp.packetin:",resp.packetin)
+      console.log("resp.packetin.srcaddr:",resp.packetin.srcaddr)
+      console.log('tipo resp: ' + typeof(resp))
       })   
     })
     .on('error', function (e) {

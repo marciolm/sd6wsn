@@ -43,23 +43,24 @@
 #define DEBUG DEBUG_PRINT
 #include "net/ip/uip-debug.h"
 #include "res-flow-mod.h"
-#define NO_FLOW_ENTRIES 10
+#define NO_FLOW_ENTRIES 20
 
 flow_s flow_table[32];
 static uint8_t table_entry = 0;
 uip_ipaddr_t tmp_addr;
 static int table_pos;
 static int table_index;
-uint8_t noflow_packet_count = 0;
-uint8_t noflow_packet_srcaddr[NO_FLOW_ENTRIES];
-uint8_t noflow_packet_dstaddr[NO_FLOW_ENTRIES];
-uint16_t noflow_packet_srcport[NO_FLOW_ENTRIES];
-uint16_t noflow_packet_dstport[NO_FLOW_ENTRIES];
+static uint8_t noflow_packet_count = 0;
+static uint8_t current_packet_count;
+static uint8_t noflow_packet_srcaddr[NO_FLOW_ENTRIES];
+static uint8_t noflow_packet_dstaddr[NO_FLOW_ENTRIES];
+static uint16_t noflow_packet_srcport[NO_FLOW_ENTRIES];
+static uint16_t noflow_packet_dstport[NO_FLOW_ENTRIES];
 
 void packet_in_handler(void* request, void* response, char *buffer,
 		uint16_t preferred_size, int32_t *offset);
 static void
-res_event_packet_in_handler();
+res_periodic_packet_in_handler();
 
 PERIODIC_RESOURCE(res_packet_in, "title=\"Packet-in\";rt=\"Text\";obs",
 		packet_in_handler, //get
@@ -67,17 +68,19 @@ PERIODIC_RESOURCE(res_packet_in, "title=\"Packet-in\";rt=\"Text\";obs",
 		NULL,//put
 		NULL,//delete
 		CLOCK_SECOND,
-		res_event_packet_in_handler);
+		res_periodic_packet_in_handler);
 
 uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstaddress,
 		uint16_t *srcport,uint16_t *dstport,uint8_t *proto){
 
 	table_pos = 0;
-	//PRINTF("\nget_next_hop_by_flow srcaddress:");
-	//PRINT6ADDR(srcaddress);
-	//PRINTF("\nget_next_hop_by_flow dstaddress:");
-	//PRINT6ADDR(dstaddress);
-	//PRINTF("\n");
+/*
+	PRINTF("\nget_next_hop_by_flow srcaddress:");
+	PRINT6ADDR(srcaddress);
+	PRINTF("\nget_next_hop_by_flow dstaddress:");
+	PRINT6ADDR(dstaddress);
+	PRINTF("\n");
+*/
 	if(dstport == 5683 || srcport == 5683 ) {
 		return NULL;
 	}
@@ -111,13 +114,15 @@ uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstad
 		noflow_packet_srcport[noflow_packet_count] = srcport;
 		noflow_packet_dstport[noflow_packet_count] = dstport;
 		noflow_packet_count++ ;
-		PRINTF("\npacket-in srcaddress:");
+
+/*		PRINTF("\npacket-in srcaddress:");
 		PRINT6ADDR(srcaddress);
 		PRINTF("\npacket-in dstaddress:");
 		PRINT6ADDR(dstaddress);
 		PRINTF("\npacket-in srcport:%d",srcport);
 		PRINTF("\npacket-in dstport:%d",dstport);
 		PRINTF("\n");
+*/
 		return NULL;
 	}else {
 		if(flow_table[table_pos].action == 0 ) { // action = forward
@@ -127,7 +132,7 @@ uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstad
 			return &flow_table[table_pos].nhipaddr;
 		} else {
 			if(flow_table[table_pos].action == 2 ) { // action = CPForward
-				//			PRINTF("Control plane forwarding !\n");
+	//			PRINTF("Control plane forwarding !\n");
 				return NULL;
 			} else {
 				return NULL; // action = drop
@@ -176,7 +181,7 @@ flow_mod_handler(void *request, void *response, char *buffer,
 				}
 				table_index++;
 			}
-			if(!existing_flow) {  //if is a new flow, use the next empty table entry
+			if(!existing_flow) {  //if it's a new flow, use the next empty table entry
 				table_index = table_entry;
 				table_entry++;
 			}
@@ -217,6 +222,7 @@ flow_mod_handler(void *request, void *response, char *buffer,
 			snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
 			flow_table[table_index].txpwr=atoi(buffer);
 		}
+/*
 		PRINTF("flowid: %d\n", flow_table[table_index].flowid);
 		PRINTF("ipv6src: ");
 		PRINT6ADDR(&flow_table[table_index].ipv6src);
@@ -229,6 +235,7 @@ flow_mod_handler(void *request, void *response, char *buffer,
 		PRINTF("\n");
 		PRINTF("txpwr: %d\n", flow_table[table_index].txpwr);
 		PRINTF("table entries=%d\n",table_entry);
+*/
 		// REST.set_response_status(response, REST.status.CHANGED);
 	}
 }
@@ -238,28 +245,29 @@ void packet_in_handler(void* request, void* response, char *buffer,
 
 	volatile uint8_t i;
 	uint16_t n = 0;
-	PRINTF("handler src-dst-address:%d %d\n", noflow_packet_srcaddr[noflow_packet_count-1],
-			noflow_packet_dstaddr[noflow_packet_count-1]);
-	n += sprintf(&(buffer[n]), "{\"packetin\":");
-	n += sprintf(&(buffer[n]),"\"%x,%x,%d,%d\"}",noflow_packet_srcaddr[noflow_packet_count-1],
-			noflow_packet_dstaddr[noflow_packet_count-1],
-			noflow_packet_srcport[noflow_packet_count-1],
-			noflow_packet_dstport[noflow_packet_count-1]);
+	PRINTF("handler src-dst-address:%d %d\n", noflow_packet_srcaddr[current_packet_count],
+			noflow_packet_dstaddr[current_packet_count]);
+	n += sprintf(&(buffer[n]), "{\"packetin\":{");
+	n += sprintf(&(buffer[n]),"\"srcaddr\":\"%x\",\"dstaddr\":\"%x\",\"srcport\":%d,\"dstport\":%d}}",
+			noflow_packet_srcaddr[current_packet_count],
+			noflow_packet_dstaddr[current_packet_count],
+			noflow_packet_srcport[current_packet_count],
+			noflow_packet_dstport[current_packet_count]);
 	REST.set_header_content_type(response, APPLICATION_JSON);
 	REST.set_header_max_age(response, res_packet_in.periodic->period / CLOCK_SECOND);
-	//*offset = -1;  // try to fix Copper response
 	REST.set_response_payload(response, buffer, snprintf((char *)buffer,
 			preferred_size, "%s", buffer));
 }
 
 static void
-res_event_packet_in_handler()
+res_periodic_packet_in_handler()
 {
 	if(1) {
 		//PRINTF("packet_in_periodic_handler\n");
 		/* Notify the registered observers which will trigger the
 		 *  res_get_handler to create the response. */
 		while(noflow_packet_count>0) {
+			current_packet_count = noflow_packet_count - 1 ;
 			REST.notify_subscribers(&res_packet_in);
 			noflow_packet_count--;
 		}

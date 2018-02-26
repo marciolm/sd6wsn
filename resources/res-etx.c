@@ -54,7 +54,8 @@ typedef struct etx_s {
 etx_s etx_table[NBR_TABLE_CONF_MAX_NEIGHBORS]; // number of neighbors configured
 uint8_t parent_index;
 
-static void res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
+static void res_get_handler(void *request, void *response, uint8_t *buffer,
+		uint16_t preferred_size, int32_t *offset);
 static void res_periodic_handler(void);
 
 PERIODIC_RESOURCE(res_etx,
@@ -67,7 +68,8 @@ PERIODIC_RESOURCE(res_etx,
 		res_periodic_handler);
 
 static void
-res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
+res_get_handler(void *request, void *response, uint8_t *buffer,
+		uint16_t preferred_size, int32_t *offset)
 {
 	rpl_dag_t *dag;
 	rpl_parent_t *parent;
@@ -89,7 +91,8 @@ res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferr
 			etx_table[parent_index].nbr_addr = rpl_get_parent_ipaddr(parent)->u8[15];
 			etx_table[parent_index].nbr_etx = rpl_get_parent_link_metric(parent);
 			etx_table[parent_index].p = parent;
-			strpos += sprintf(&(buffer[strpos]),"\"n%x\":%u,",etx_table[parent_index].nbr_addr, etx_table[parent_index].nbr_etx);
+			strpos += sprintf(&(buffer[strpos]),"\"n%x\":%u,",etx_table[parent_index].nbr_addr,
+					etx_table[parent_index].nbr_etx);
 			parent = nbr_table_next(rpl_parents, parent);
 			parent_index++;
 		}
@@ -107,7 +110,8 @@ res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferr
 	REST.set_header_content_type(response, APPLICATION_JSON);
 	REST.set_header_max_age(response, res_etx.periodic->period / CLOCK_SECOND);
 	//*offset = -1;  // try to fix Copper response
-	REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "%s", buffer));
+	REST.set_response_payload(response, buffer, snprintf((char *)buffer,
+			preferred_size, "%s", buffer));
 
 	/* The REST.subscription_handler() will be called for observable resources by the REST framework. */
 }
@@ -127,9 +131,10 @@ res_periodic_handler()
 		PRINTF("parent: %d ",etx_table[parent_counter].nbr_addr);
 		PRINTF("etx_temp:%d\n",etx_temp);
 
-		if(etx_temp > etx_table[parent_counter].nbr_etx * 2 || etx_temp < etx_table[parent_counter].nbr_etx / 2 ) {
-			etx_table[parent_counter].nbr_etx = etx_temp ;
-			etx_changed = 1;
+		if(etx_temp > etx_table[parent_counter].nbr_etx * 2
+				|| etx_temp < etx_table[parent_counter].nbr_etx / 2 ) {
+					etx_table[parent_counter].nbr_etx = etx_temp ;
+					etx_changed = 1;
 		}
 		parent_counter++;
 	}

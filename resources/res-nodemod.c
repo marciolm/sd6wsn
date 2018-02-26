@@ -70,7 +70,7 @@ uint16_t ipaddr_last_chunk(const uip_ipaddr_t *addr, char *buffer) {
 	uint16_t a, n;
 	n = 0;
 	a = (addr->u8[14] << 8) + addr->u8[15]; //only the end of address
-	n += sprintf(&buffer[n], "%x", a); // %d for decimal, %x for hex
+	n += sprintf(&buffer[n], "%x", a);
 	return n;
 }
 
@@ -96,10 +96,9 @@ void node_mod_handler(void* request, void* response, char *buffer,
 	} else {
 		n += sprintf(&(buffer[n]), "\"}");
 	}
-	PRINTF("buf_nodes: %s\n", buffer);
+	//PRINTF("buf_nodes: %s\n", buffer);
 	REST.set_header_content_type(response, APPLICATION_JSON);
 	REST.set_header_max_age(response, res_node_mod.periodic->period / CLOCK_SECOND);
-	//*offset = -1;  // try to fix Copper response
 	REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "%s", buffer));
 }
 
