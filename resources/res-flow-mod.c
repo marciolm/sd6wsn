@@ -43,17 +43,18 @@
 #define DEBUG DEBUG_PRINT
 #include "net/ip/uip-debug.h"
 #include "res-flow-mod.h"
+#define NO_FLOW_ENTRIES 10
 
 flow_s flow_table[32];
 static uint8_t table_entry = 0;
 uip_ipaddr_t tmp_addr;
 static int table_pos;
 static int table_index;
-uint8_t noflow_new_packet = 0;
-uint8_t noflow_packet_srcaddr;
-uint8_t noflow_packet_dstaddr;
-uint16_t noflow_packet_srcport = 0;
-uint16_t noflow_packet_dstport = 0;
+uint8_t noflow_packet_count = 0;
+uint8_t noflow_packet_srcaddr[NO_FLOW_ENTRIES];
+uint8_t noflow_packet_dstaddr[NO_FLOW_ENTRIES];
+uint16_t noflow_packet_srcport[NO_FLOW_ENTRIES];
+uint16_t noflow_packet_dstport[NO_FLOW_ENTRIES];
 
 void packet_in_handler(void* request, void* response, char *buffer,
 		uint16_t preferred_size, int32_t *offset);
@@ -68,10 +69,10 @@ PERIODIC_RESOURCE(res_packet_in, "title=\"Packet-in\";rt=\"Text\";obs",
 		CLOCK_SECOND,
 		res_event_packet_in_handler);
 
-uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstaddress,uint16_t *srcport,uint16_t *dstport,uint8_t *proto){
+uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstaddress,
+		uint16_t *srcport,uint16_t *dstport,uint8_t *proto){
 
 	table_pos = 0;
-
 	//PRINTF("\nget_next_hop_by_flow srcaddress:");
 	//PRINT6ADDR(srcaddress);
 	//PRINTF("\nget_next_hop_by_flow dstaddress:");
@@ -84,9 +85,12 @@ uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstad
 	while(table_pos<=table_entry){
 		if(uip_ipaddr_cmp(dstaddress,&flow_table[table_pos].ipv6dst)) {
 			if(uip_ipaddr_cmp(srcaddress,&flow_table[table_pos].ipv6src)){
-				if(srcport == flow_table[table_pos].srcport || flow_table[table_pos].srcport == NULL ){
-					if(dstport == flow_table[table_pos].dstport || flow_table[table_pos].dstport == NULL){
-						if(proto == flow_table[table_pos].ipproto || flow_table[table_pos].ipproto == NULL){
+				if(srcport == flow_table[table_pos].srcport
+						|| flow_table[table_pos].srcport == NULL ){
+					if(dstport == flow_table[table_pos].dstport
+							|| flow_table[table_pos].dstport == NULL){
+						if(proto == flow_table[table_pos].ipproto
+								|| flow_table[table_pos].ipproto == NULL){
 							PRINTF("flow found !\n");
 							break;
 						}
@@ -102,12 +106,11 @@ uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstad
 	PRINT6ADDR(&flow_table[table_pos].ipv6dst);
 	PRINTF("\n");
 	if(table_pos>table_entry) {
-		noflow_packet_srcaddr = srcaddress->u8[15];
-		noflow_packet_dstaddr = dstaddress->u8[15];
-		noflow_packet_srcport = srcport;
-		noflow_packet_dstport = dstport;
-		noflow_new_packet = 1;
-		//	PRINTF("packet-in flow not found\n");
+		noflow_packet_srcaddr[noflow_packet_count] = srcaddress->u8[15];
+		noflow_packet_dstaddr[noflow_packet_count] = dstaddress->u8[15];
+		noflow_packet_srcport[noflow_packet_count] = srcport;
+		noflow_packet_dstport[noflow_packet_count] = dstport;
+		noflow_packet_count++ ;
 		PRINTF("\npacket-in srcaddress:");
 		PRINT6ADDR(srcaddress);
 		PRINTF("\npacket-in dstaddress:");
@@ -235,14 +238,18 @@ void packet_in_handler(void* request, void* response, char *buffer,
 
 	volatile uint8_t i;
 	uint16_t n = 0;
-	PRINTF("\n handler srcdstaddress:%d %d\n", noflow_packet_srcaddr, noflow_packet_dstaddr);
+	PRINTF("handler src-dst-address:%d %d\n", noflow_packet_srcaddr[noflow_packet_count-1],
+			noflow_packet_dstaddr[noflow_packet_count-1]);
 	n += sprintf(&(buffer[n]), "{\"packetin\":");
-	n += sprintf(&(buffer[n]),"\"%x,%x,%d,%d\"}",noflow_packet_srcaddr,noflow_packet_dstaddr,noflow_packet_srcport,noflow_packet_dstport);
-	//PRINTF("packet_in_handler\n");
+	n += sprintf(&(buffer[n]),"\"%x,%x,%d,%d\"}",noflow_packet_srcaddr[noflow_packet_count-1],
+			noflow_packet_dstaddr[noflow_packet_count-1],
+			noflow_packet_srcport[noflow_packet_count-1],
+			noflow_packet_dstport[noflow_packet_count-1]);
 	REST.set_header_content_type(response, APPLICATION_JSON);
 	REST.set_header_max_age(response, res_packet_in.periodic->period / CLOCK_SECOND);
 	//*offset = -1;  // try to fix Copper response
-	REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "%s", buffer));
+	REST.set_response_payload(response, buffer, snprintf((char *)buffer,
+			preferred_size, "%s", buffer));
 }
 
 static void
@@ -250,10 +257,11 @@ res_event_packet_in_handler()
 {
 	if(1) {
 		//PRINTF("packet_in_periodic_handler\n");
-		/* Notify the registered observers which will trigger the res_get_handler to create the response. */
-		if(noflow_new_packet) {
-			noflow_new_packet = 0;
+		/* Notify the registered observers which will trigger the
+		 *  res_get_handler to create the response. */
+		while(noflow_packet_count>0) {
 			REST.notify_subscribers(&res_packet_in);
+			noflow_packet_count--;
 		}
 	}
 }
