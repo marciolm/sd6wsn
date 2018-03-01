@@ -54,7 +54,7 @@
 
 #include <string.h>
 
-#define DEBUG DEBUG_PRINT
+#define DEBUG DEBUG_NONE
 #include "net/ip/uip-debug.h"
 
 #if SDWSN
@@ -405,18 +405,18 @@ eventhandler(process_event_t ev, process_data_t data)
 		}
 #endif /* UIP_TCP */
 #if UIP_UDP
-{
-	struct uip_udp_conn *cptr;
+		{
+			struct uip_udp_conn *cptr;
 
-	for(cptr = &uip_udp_conns[0];
-			cptr < &uip_udp_conns[UIP_UDP_CONNS]; ++cptr) {
-		if(cptr->appstate.p == p) {
-			cptr->lport = 0;
+			for(cptr = &uip_udp_conns[0];
+					cptr < &uip_udp_conns[UIP_UDP_CONNS]; ++cptr) {
+				if(cptr->appstate.p == p) {
+					cptr->lport = 0;
+				}
+			}
 		}
-	}
-}
 #endif /* UIP_UDP */
-break;
+		break;
 
 	case PROCESS_EVENT_TIMER:
 		/* We get this event if one of our timers have expired. */
@@ -580,26 +580,25 @@ tcpip_ipv6_output(void)
        nexthop address. */
 #if SDWSN
 		uint8_t proto_out = *((uint8_t *)UIP_IP_BUF + 40);
-//		PRINTF("\nDEBUG tcpip.c proto-antes:%u\n",proto_out);
+		//		PRINTF("\nDEBUG tcpip.c proto-antes:%u\n",proto_out);
 		if(proto_out==17) {
 			uint16_t udpsrcport = (*((uint8_t *)UIP_UDP_BUF + 8) << 8) | *((uint8_t *)UIP_UDP_BUF + 9);
 			uint16_t udpdstport = (*((uint8_t *)UIP_UDP_BUF + 10) << 8) | *((uint8_t *)UIP_UDP_BUF + 11);
-/*			PRINTF("DEBUG tcpip.c Detalhes do pacote no buffer\n");
+			/*
+			PRINTF("DEBUG tcpip.c Detalhes do pacote no buffer\n");
 			PRINTF("ipdst: ");
 			PRINT6ADDR(&UIP_IP_BUF->destipaddr);
 			PRINTF("\nipsrc: ");
 			PRINT6ADDR(&UIP_IP_BUF->srcipaddr);
 			PRINTF("\nsrcport:%u\n",udpsrcport);
 			PRINTF("dstport:%u\n",udpdstport);
-*/
-//			if(udpdstport != 5683 && udpsrcport != 5683 ) {
-				nexthop=get_next_hop_by_flow(&UIP_IP_BUF->srcipaddr,&UIP_IP_BUF->destipaddr,udpsrcport,udpdstport,proto_out);
-/*				PRINT6ADDR(get_next_hop_by_flow(&UIP_IP_BUF->srcipaddr,&UIP_IP_BUF->destipaddr,udpsrcport,udpdstport,proto_out));
-			    PRINTF("DEBUG tcpip.c New Next Hop: ");
-				PRINT6ADDR(nexthop);
-				PRINTF("\n");
-*/
-//			}
+			 */
+			nexthop=get_next_hop_by_flow(&UIP_IP_BUF->srcipaddr,&UIP_IP_BUF->destipaddr,udpsrcport,udpdstport,proto_out);
+			/*  		PRINT6ADDR(get_next_hop_by_flow(&UIP_IP_BUF->srcipaddr,&UIP_IP_BUF->destipaddr,udpsrcport,udpdstport,proto_out));
+			PRINTF("DEBUG tcpip.c New Next Hop: ");
+			PRINT6ADDR(nexthop);
+			PRINTF("\n");
+			 */
 		}
 #endif
 		if(nexthop == NULL && uip_ds6_is_addr_onlink(&UIP_IP_BUF->destipaddr)){

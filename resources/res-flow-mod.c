@@ -43,9 +43,10 @@
 #define DEBUG DEBUG_PRINT
 #include "net/ip/uip-debug.h"
 #include "res-flow-mod.h"
+#define FLOW_TABLE_SIZE 32
 #define NO_FLOW_ENTRIES 20
 
-flow_s flow_table[32];
+flow_s flow_table[FLOW_TABLE_SIZE];
 static uint8_t table_entry = 0;
 uip_ipaddr_t tmp_addr;
 static int table_pos;

@@ -80,6 +80,12 @@ Compile the program tunslip6:
 	$ make tunslip6
 	$ popd
 
+The original ~/contiki/core/net/ip/tcpip.c file should be replaced by the altered version. This is the only change in the Contiki tree in this project. The original file will be renamed to .ori extension.
+
+    $ cd ~/contiki/examples/sd6wsn
+    $ cp ~/contiki/core/net/ip/tcpip.c ~/contiki/core/net/ip/tcpip.c.ori
+    $ cp newtcpip.c ~/contiki/core/net/ip/tcpip.c
+
 Open a terminal and run Cooja simulation:
 
 	$ cd ~/contiki/examples/sd6wsn
@@ -90,12 +96,12 @@ Open a terminal and run Cooja simulation:
 Open a second terminal:
 
 	$ cd ~/contiki/examples/sd6wsn
-	$ ./inicia-router2.sh
+	$ ./inicia-router-loop.sh
 
-There are some scripts to retrive the routing information via COAP. To run them, start a third terminal:
+The SD6WSN Node Controller and a application to install the flows into the nodes is on the scripts folder. To run them, start a third terminal:
 
-	$ cd ~/contiki/examples/sd6wsn
-	$ ./coap-read-4.sh
+	$ cd ~/contiki/examples/sd6wsn/scripts
+	$ node sd6wsn-controller.js
 
 * [1] https://github.com/contiki-os/contiki/tree/master/examples/er-rest-example
 * [2] http://libcoap.net
