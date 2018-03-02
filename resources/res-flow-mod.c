@@ -47,7 +47,7 @@
 #define NO_FLOW_ENTRIES 20
 
 flow_s flow_table[FLOW_TABLE_SIZE];
-static uint8_t table_entry = 0;
+static uint8_t table_entries = 0;
 uip_ipaddr_t tmp_addr;
 static int table_pos;
 static int table_index;
@@ -85,8 +85,8 @@ uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstad
 	if(dstport == 5683 || srcport == 5683 ) {
 		return NULL;
 	}
-	PRINTF("\nnumber of table_entries: %d\n",table_entry);
-	while(table_pos<=table_entry){
+	PRINTF("\nnumber of table_entries: %d\n",table_entries);
+	while(table_pos<=table_entries){
 		if(uip_ipaddr_cmp(dstaddress,&flow_table[table_pos].ipv6dst)) {
 			if(uip_ipaddr_cmp(srcaddress,&flow_table[table_pos].ipv6src)){
 				if(srcport == flow_table[table_pos].srcport
@@ -109,7 +109,7 @@ uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstad
 	PRINTF("\nget_next_hop_by_flow ipv6dst:");
 	PRINT6ADDR(&flow_table[table_pos].ipv6dst);
 	PRINTF("\n");
-	if(table_pos>table_entry) {
+	if(table_pos>table_entries) {
 		noflow_packet_srcaddr[noflow_packet_count] = srcaddress->u8[15];
 		noflow_packet_dstaddr[noflow_packet_count] = dstaddress->u8[15];
 		noflow_packet_srcport[noflow_packet_count] = srcport;
@@ -174,17 +174,17 @@ flow_mod_handler(void *request, void *response, char *buffer,
 		if ((len = REST.get_query_variable(request, "flowid", &str))) {
 			snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
 			flowid_temp=atoi(buffer);
-			while(table_index<=table_entry){
+			while(table_index<=table_entries){
 				if(flowid_temp == flow_table[table_index].flowid ) {
-					PRINTF("flowid entry found!\n");
+					PRINTF("flowid entry found, replacing\n");
 					existing_flow = 1;
 					break;
 				}
 				table_index++;
 			}
 			if(!existing_flow) {  //if it's a new flow, use the next empty table entry
-				table_index = table_entry;
-				table_entry++;
+				table_index = table_entries;
+				table_entries++;
 			}
 			flow_table[table_index].flowid=flowid_temp;
 		}
@@ -235,9 +235,30 @@ flow_mod_handler(void *request, void *response, char *buffer,
 		PRINT6ADDR(&flow_table[table_index].nhipaddr);
 		PRINTF("\n");
 		PRINTF("txpwr: %d\n", flow_table[table_index].txpwr);
-		PRINTF("table entries=%d\n",table_entry);
+		PRINTF("table entries=%d\n",table_entries);
 */
 		// REST.set_response_status(response, REST.status.CHANGED);
+	}
+	if (buffer[0] == 'd') {
+		if ((len = REST.get_query_variable(request, "flowid", &str))) {
+			snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
+			flowid_temp=atoi(buffer);
+		}
+		while(table_index<=table_entries){
+			if(flowid_temp == flow_table[table_index].flowid ) {
+				PRINTF("delete:flowid entry found!\n");
+				existing_flow = 1;
+				break;
+			}
+		table_index++;
+		}
+		if(existing_flow) {
+			while(table_index <= table_entries){
+				flow_table[table_index] = flow_table[table_index + 1];
+				table_index++;
+		    }
+			table_entries--;
+		}
 	}
 }
 
