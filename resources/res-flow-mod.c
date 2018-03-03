@@ -176,7 +176,7 @@ flow_mod_handler(void *request, void *response, char *buffer,
 			flowid_temp=atoi(buffer);
 			while(table_index<=table_entries){
 				if(flowid_temp == flow_table[table_index].flowid ) {
-					PRINTF("flowid entry found, replacing\n");
+					PRINTF("flowid entry found, changing values\n");
 					existing_flow = 1;
 					break;
 				}
@@ -239,25 +239,23 @@ flow_mod_handler(void *request, void *response, char *buffer,
 */
 		// REST.set_response_status(response, REST.status.CHANGED);
 	}
-	if (buffer[0] == 'd') {
+	if (buffer[0] == 'd') {  //operation flow delete
 		if ((len = REST.get_query_variable(request, "flowid", &str))) {
 			snprintf((char *) buffer, REST_MAX_CHUNK_SIZE - 1, "%.*s", len, str);
 			flowid_temp=atoi(buffer);
 		}
-		while(table_index<=table_entries){
+		while(table_index<=table_entries){  // find the entry
 			if(flowid_temp == flow_table[table_index].flowid ) {
 				PRINTF("delete:flowid entry found!\n");
-				existing_flow = 1;
+				while(table_index <= table_entries){ // shift up the rest of entries
+					flow_table[table_index] = flow_table[table_index + 1];
+					table_index++;
+			    }
+				table_entries--;
+
 				break;
 			}
 		table_index++;
-		}
-		if(existing_flow) {
-			while(table_index <= table_entries){
-				flow_table[table_index] = flow_table[table_index + 1];
-				table_index++;
-		    }
-			table_entries--;
 		}
 	}
 }
