@@ -237,7 +237,7 @@ flow_mod_handler(void *request, void *response, char *buffer,
 		PRINTF("txpwr: %d\n", flow_table[table_index].txpwr);
 		PRINTF("table entries=%d\n",table_entries);
 */
-		// REST.set_response_status(response, REST.status.CHANGED);
+		REST.set_response_status(response, REST.status.CHANGED);
 	}
 	if (buffer[0] == 'd') {  //operation flow delete
 		if ((len = REST.get_query_variable(request, "flowid", &str))) {
@@ -252,7 +252,6 @@ flow_mod_handler(void *request, void *response, char *buffer,
 					table_index++;
 			    }
 				table_entries--;
-
 				break;
 			}
 		table_index++;

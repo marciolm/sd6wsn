@@ -113,7 +113,7 @@ AUTOSTART_PROCESSES(&er_example_server, &udp_client_process);
 #define PERIOD 30 // period between packet send
 #endif
 
-#define START_INTERVAL		(60 * CLOCK_SECOND)  //delay before start the test 180 secs
+#define START_INTERVAL		(180 * CLOCK_SECOND)  //delay before start the test 180 secs
 #define SEND_INTERVAL		(PERIOD * CLOCK_SECOND)
 #define SEND_TIME		(random_rand() % (SEND_INTERVAL))
 #define MAX_PAYLOAD_LEN		30
