@@ -31,7 +31,7 @@
 
 /**
  * \file
- *      Returns registered nodes
+ *      nodemod
  * \author
  *      Matthias Kovatsch <kovatsch@inf.ethz.ch>
  *      Modified by Marcio Miguel <marcio.miguel@gmail.com>
@@ -49,7 +49,7 @@
 #include "rest-engine.h"
 #include "er-coap-engine.h"
 /* debug */
-#define DEBUG DEBUG_FULL
+#define DEBUG DEBUG_NONE
 #include "net/ip/uip-debug.h"
 uint8_t count;
 

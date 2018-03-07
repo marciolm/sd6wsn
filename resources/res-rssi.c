@@ -31,9 +31,10 @@
 
 /**
  * \file
- *      Example resource
+ *      RSSI resource
  * \author
  *      Matthias Kovatsch <kovatsch@inf.ethz.ch>
+ *      Modified by Marcio Miguel <marcio.miguel@gmail.com>
  */
 
 #include <string.h>

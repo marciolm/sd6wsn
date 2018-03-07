@@ -63,7 +63,7 @@
  * Resources to be activated need to be imported through the extern keyword.
  * The build system automatically compiles the resources in the corresponding sub-directory.
  */
-extern resource_t res_hello, res_separate, res_push, res_event;
+extern resource_t res_hello;
 #ifdef CPU_HAS_MSP430X
 extern resource_t res_cc2520_txpower;
 #else
@@ -284,7 +284,6 @@ PROCESS_THREAD(er_example_server, ev, data)
 	 * All static variables are the same for each URI path.
 	 */
 	rest_activate_resource(&res_hello, "test/hello");
-	rest_activate_resource(&res_push, "test/push");
 	rest_activate_resource(&res_rssi, "sd6wsn/info-get/rssi");
 	rest_activate_resource(&res_etx, "sd6wsn/info-get/nbr-etx");
 	rest_activate_resource(&res_flow_mod, "sd6wsn/flow-mod");
@@ -304,25 +303,6 @@ PROCESS_THREAD(er_example_server, ev, data)
 	rest_activate_resource(&res_battery, "sd6wsn/info-get/battery");
 	SENSORS_ACTIVATE(battery_sensor);
 #endif
-
-	/* Define application-specific events here. */
-	while (1)
-	{
-		PROCESS_WAIT_EVENT();
-#if PLATFORM_HAS_BUTTON
-		if (ev == sensors_event && data == &button_sensor)
-		{
-			PRINTF("*******BUTTON*******\n");
-
-			/* Call the event_handler for this application-specific event. */
-			res_event.trigger();
-
-			/* Also call the separate response example handler. */
-			res_separate.resume();
-		}
-#endif /* PLATFORM_HAS_BUTTON */
-	} /* while (1) */
-
 	PROCESS_END();
 }
 PROCESS_THREAD(ping_sender_process, ev, data)

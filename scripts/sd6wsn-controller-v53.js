@@ -17,7 +17,7 @@ var responsecounter = 0
 var getmetricstries = []
 
 coap.parameters
-.exchangeLifetime = 30
+.exchangeLifetime = 45
 //.ackTimeout = 5
 //.maxRetransmit = 300
 //.ackRandomFactor= 90
@@ -116,7 +116,6 @@ function flowCalc(srcnode, dstnode) {
 }
 
 function flowEntryInstall(installnode,flowid,ipv6src,ipv6dst,nxhop) {
-	var tries = 0
 	var req = coap.request({host: installnode , pathname: '/sd6wsn/flow-mod', method: 'PUT' , query: 'operation=insert&flowid=' + flowid + '&ipv6src=' + ipv6src + '&ipv6dst=' + ipv6dst +'&action=0' + '&nhipaddr=' +  nxhop +'&txpwr=3', retrySend: 5  })
 	//console.log("installnode=",installnode)
 	req.setOption('Max-Age', 65)
@@ -126,11 +125,8 @@ function flowEntryInstall(installnode,flowid,ipv6src,ipv6dst,nxhop) {
 	})
 	req.on('error', function (err) {
     		//console.log(err)
-    		console.log("error on installnode: " + installnode + " tries: " + tries)
-		if(tries < 3) {
-			tries++
-			flowEntryInstall(installnode,flowid,ipv6src,ipv6dst,nxhop) //try one more time
-		}
+    		console.log("retrying flow install on node: " + installnode)
+		flowEntryInstall(installnode,flowid,ipv6src,ipv6dst,nxhop) //try one more time
 	}) 
 	req.end()
 }

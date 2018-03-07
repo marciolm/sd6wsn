@@ -32,8 +32,8 @@
  * \file
  *      res-etx
  * \author
- *      Marcio Miguel <marcio.miguel@gmail.com> based on examples written
- *      by Matthias Kovatsch <kovatsch@inf.ethz.ch>
+ *      Matthias Kovatsch <kovatsch@inf.ethz.ch>
+ *      Modified by Marcio Miguel <marcio.miguel@gmail.com>
  */
 
 #include <string.h>
@@ -54,7 +54,7 @@ typedef struct etx_s {
 etx_s etx_table[NBR_TABLE_CONF_MAX_NEIGHBORS]; // number of neighbors configured
 uint8_t parent_index;
 
-static void res_get_handler(void *request, void *response, uint8_t *buffer,
+static void res_get_handler(void *request, void *response, char *buffer,
 		uint16_t preferred_size, int32_t *offset);
 static void res_periodic_handler(void);
 
@@ -68,7 +68,7 @@ PERIODIC_RESOURCE(res_etx,
 		res_periodic_handler);
 
 static void
-res_get_handler(void *request, void *response, uint8_t *buffer,
+res_get_handler(void *request, void *response, char *buffer,
 		uint16_t preferred_size, int32_t *offset)
 {
 	rpl_dag_t *dag;

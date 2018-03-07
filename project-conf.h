@@ -34,6 +34,7 @@
  *      Erbium (Er) example project configuration.
  * \author
  *      Matthias Kovatsch <kovatsch@inf.ethz.ch>
+ *      Modified by Marcio Miguel <marcio.miguel@gmail.com>
  */
 
 #ifndef __PROJECT_ERBIUM_CONF_H__

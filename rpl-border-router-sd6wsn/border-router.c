@@ -28,11 +28,12 @@
  */
 /**
  * \file
- *         border-router
+ *         border-router sd6wsn
  * \author
  *         Niclas Finne <nfi@sics.se>
  *         Joakim Eriksson <joakime@sics.se>
  *         Nicolas Tsiftes <nvt@sics.se>
+ *         Modified by Marcio Miguel <marcio.miguel@gmail.com>
  */
 
 #include "contiki.h"
@@ -558,10 +559,6 @@ PROCESS_THREAD(er_example_server, ev, data)
 	rest_activate_resource(&res_toggle, "actuators/toggle");
 #endif
 
-	/* Define application-specific events here. */
-	while(1) {
-		PROCESS_WAIT_EVENT();
-	}                             /* while (1) */
 	PROCESS_END();
 }
 
