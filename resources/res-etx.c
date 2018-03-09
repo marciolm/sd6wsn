@@ -46,7 +46,7 @@
 #include "net/ip/uip-debug.h"
 
 typedef struct etx_s {
-	uint8_t nbr_addr;
+	uint16_t nbr_addr;
 	uint16_t nbr_etx;
 	rpl_parent_t * p;
 }etx_s ;
@@ -83,12 +83,12 @@ res_get_handler(void *request, void *response, char *buffer,
 	if (dag != NULL)
 	{
 		/* seek to the parents entry and return it */
-		strpos += sprintf(&(buffer[strpos]),"{\"node\":\"n%x\"",addr->u8[15]); // last addr byte of mote
+		strpos += sprintf(&(buffer[strpos]),"{\"node\":\"n%x\"",((addr->u8[14] << 8) + addr->u8[15])); // last addr byte of mote
 		strpos += sprintf(&(buffer[strpos]),",\"nbr\":{");
 		parent = nbr_table_head(rpl_parents);  // addr of first neighbor
 		while (parent != NULL)
 		{
-			etx_table[parent_index].nbr_addr = rpl_get_parent_ipaddr(parent)->u8[15];
+			etx_table[parent_index].nbr_addr = (rpl_get_parent_ipaddr(parent)->u8[14] << 8) + rpl_get_parent_ipaddr(parent)->u8[15];
 			etx_table[parent_index].nbr_etx = rpl_get_parent_link_metric(parent);
 			etx_table[parent_index].p = parent;
 			strpos += sprintf(&(buffer[strpos]),"\"n%x\":%u,",etx_table[parent_index].nbr_addr,
