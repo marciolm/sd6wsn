@@ -53,11 +53,15 @@
 #include "net/rpl/rpl.h"
 #include "sys/clock.h"
 
-#define DEBUG DEBUG_FULL
+#define DEBUG DEBUG_PRINT
 #include "net/ip/uip-debug.h"
 
 #ifndef PING_PROBE
 #define PING_PROBE 0
+#endif
+
+#ifndef TESTBED
+#define TESTBED 0
 #endif
 /*
  * Resources to be activated need to be imported through the extern keyword.
@@ -203,7 +207,11 @@ PROCESS_THREAD(udp_client_process, ev, data)
 	PROCESS_PAUSE();
 
 	/* Set the UDP server address */
-	uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x200, 0, 0, 1);
+	if(TESTBED) {
+		uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x212, 0x4b00, 0x41e, 0x8e56);
+	} else {
+		uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x200, 0, 0, 1);
+	}
 
 	PRINTF("UDP client process started nbr:%d routes:%d\n",
 			NBR_TABLE_CONF_MAX_NEIGHBORS, UIP_CONF_MAX_ROUTES);

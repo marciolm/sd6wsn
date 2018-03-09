@@ -58,8 +58,8 @@ function getMetrics(nodeaddress) {
                 res.on('data', function (res2) {
                         var noderesp = JSON.parse(objToString(res2))
                         console.log("noderesp.node:",noderesp.node,noderesp.nbr) //node, link metric for neighbors
-                        if(noderesp.nbr.hasOwnProperty("n56"))  // is n1 in the path ?
-                                nodeoneresp[noderesp.node] = noderesp.nbr.n56 //insert the value for n1
+                        if(noderesp.nbr.hasOwnProperty("n8e56"))  // is n1 in the path ?
+                                nodeoneresp[noderesp.node] = noderesp.nbr.n8e56 //insert the value for n1
                         route.addNode(noderesp.node, noderesp.nbr) //insert the node on Graph
                         graphnode ++
                         console.log("node added:",graphnode,"/",numnodes)

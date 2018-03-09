@@ -47,16 +47,16 @@
 #define NO_FLOW_ENTRIES 20
 
 flow_s flow_table[FLOW_TABLE_SIZE];
-static uint8_t table_entries = 0;
+uint8_t table_entries = 0;
 uip_ipaddr_t tmp_addr;
-static int table_pos;
-static int table_index;
-static uint8_t noflow_packet_count = 0;
-static uint8_t current_packet_count;
-static uint8_t noflow_packet_srcaddr[NO_FLOW_ENTRIES];
-static uint8_t noflow_packet_dstaddr[NO_FLOW_ENTRIES];
-static uint16_t noflow_packet_srcport[NO_FLOW_ENTRIES];
-static uint16_t noflow_packet_dstport[NO_FLOW_ENTRIES];
+uint8_t table_pos;
+uint8_t table_index;
+uint8_t noflow_packet_count = 0;
+uint8_t current_packet_count;
+uint8_t noflow_packet_srcaddr[NO_FLOW_ENTRIES];
+uint8_t noflow_packet_dstaddr[NO_FLOW_ENTRIES];
+uint16_t noflow_packet_srcport[NO_FLOW_ENTRIES];
+uint16_t noflow_packet_dstport[NO_FLOW_ENTRIES];
 
 void packet_in_handler(void* request, void* response, char *buffer,
 		uint16_t preferred_size, int32_t *offset);
@@ -106,7 +106,7 @@ uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstad
 	}
 
 	PRINTF("table_pos: %d\n",table_pos);
-	PRINTF("\nget_next_hop_by_flow ipv6dst:");
+	PRINTF("get_next_hop_by_flow ipv6dst:");
 	PRINT6ADDR(&flow_table[table_pos].ipv6dst);
 	PRINTF("\n");
 	if(table_pos>table_entries) {
@@ -114,8 +114,9 @@ uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstad
 		noflow_packet_dstaddr[noflow_packet_count] = dstaddress->u8[15];
 		noflow_packet_srcport[noflow_packet_count] = srcport;
 		noflow_packet_dstport[noflow_packet_count] = dstport;
-		noflow_packet_count++ ;
-
+		if(noflow_packet_count<NO_FLOW_ENTRIES){
+			noflow_packet_count++ ;
+		}
 /*		PRINTF("\npacket-in srcaddress:");
 		PRINT6ADDR(srcaddress);
 		PRINTF("\npacket-in dstaddress:");
@@ -156,7 +157,7 @@ static void
 flow_mod_handler(void *request, void *response, char *buffer,
 		uint16_t preferred_size, int32_t *offset) {
 
-	const char *str = NULL;
+	char *str = NULL;
 	uint8_t len = 0;
 	uint8_t flowid_temp;
 	uint8_t existing_flow = 0;
@@ -262,7 +263,6 @@ flow_mod_handler(void *request, void *response, char *buffer,
 void packet_in_handler(void* request, void* response, char *buffer,
 		uint16_t preferred_size, int32_t *offset) {
 
-	volatile uint8_t i;
 	uint16_t n = 0;
 	PRINTF("handler src-dst-address:%d %d\n", noflow_packet_srcaddr[current_packet_count],
 			noflow_packet_dstaddr[current_packet_count]);

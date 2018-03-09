@@ -30,7 +30,7 @@
 
 #ifndef PROJECT_ROUTER_CONF_H_
 #define PROJECT_ROUTER_CONF_H_
-
+#undef  RF_CORE_CONF_CHANNEL
 #define RF_CORE_CONF_CHANNEL                 0
 
 #undef NETSTACK_CONF_RDC
