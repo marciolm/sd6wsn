@@ -4,7 +4,7 @@ var coap = require('coap')
 var req = {}
 var hostprefix = "fd00::212:4b00:41e:"
 var nexthopprefix = "fe80::212:4b00:41e:"
-var nodeoneresp= {}
+var rootnoderesp= {}
 var flowpath = new Array()
 const responsestimeout = 3000 //1500
 var rootnode = "8e56"
@@ -58,8 +58,8 @@ function getMetrics(nodeaddress) {
                 res.on('data', function (res2) {
                         var noderesp = JSON.parse(objToString(res2))
                         console.log("noderesp.node:",noderesp.node,noderesp.nbr) //node, link metric for neighbors
-                        if(noderesp.nbr.hasOwnProperty("n8e56"))  // is n1 in the path ?
-                                nodeoneresp[noderesp.node] = noderesp.nbr.n8e56 //insert the value for n1
+                        if(noderesp.nbr.hasOwnProperty("n" + rootnode))  // is root node in the path ?
+                                rootnoderesp[noderesp.node] = noderesp.nbr.n8e56 //insert the value for n1
                         route.addNode(noderesp.node, noderesp.nbr) //insert the node on Graph
                         graphnode ++
                         console.log("node added:",graphnode,"/",numnodes)
@@ -79,9 +79,9 @@ function getMetrics(nodeaddress) {
 async function treeCalc() {
         //after all nodes responses, build the n1 link metric vector
         while(numnodes != graphnode) await sleep(responsestimeout)
-        console.log("etx node 1",nodeoneresp)
-        route.addNode("n56", nodeoneresp)
-        console.log("best paths to the root (n1):")
+        console.log("etx node 1",rootnoderesp)
+        route.addNode("n" + rootnode, rootnoderesp)
+        console.log("best paths to the root :")
         for(var i = 0; i < numnodes ; i++ ) {
                 flowCalc(nodesaddresses[i],rootnode)
                 await sleep(responsestimeout)

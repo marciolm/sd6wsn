@@ -128,7 +128,7 @@ res_periodic_handler()
 
 	while(parent_counter < parent_index) {
 		etx_temp = rpl_get_parent_link_metric(etx_table[parent_counter].p);
-		PRINTF("parent: %d ",etx_table[parent_counter].nbr_addr);
+		PRINTF("parent: %x ",etx_table[parent_counter].nbr_addr);
 		PRINTF("etx_temp:%d\n",etx_temp);
 
 		if(etx_temp > etx_table[parent_counter].nbr_etx * 2

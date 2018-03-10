@@ -157,7 +157,7 @@ static void
 flow_mod_handler(void *request, void *response, char *buffer,
 		uint16_t preferred_size, int32_t *offset) {
 
-	char *str = NULL;
+	const char *str = NULL;
 	uint8_t len = 0;
 	uint8_t flowid_temp;
 	uint8_t existing_flow = 0;

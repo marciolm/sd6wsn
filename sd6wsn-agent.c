@@ -52,16 +52,13 @@
 #include "net/ipv6/uip-ds6.h"
 #include "net/rpl/rpl.h"
 #include "sys/clock.h"
+#include "dev/leds.h"
 
-#define DEBUG DEBUG_PRINT
+#define DEBUG DEBUG_FULL
 #include "net/ip/uip-debug.h"
 
 #ifndef PING_PROBE
 #define PING_PROBE 0
-#endif
-
-#ifndef TESTBED
-#define TESTBED 0
 #endif
 /*
  * Resources to be activated need to be imported through the extern keyword.
@@ -117,7 +114,7 @@ AUTOSTART_PROCESSES(&er_example_server, &udp_client_process);
 #define PERIOD 30 // period between packet send
 #endif
 
-#define START_INTERVAL		(180 * CLOCK_SECOND)  //delay before start the test 180 secs
+#define START_INTERVAL		(30 * CLOCK_SECOND)  //delay before start the test 180 secs
 #define SEND_INTERVAL		(PERIOD * CLOCK_SECOND)
 #define SEND_TIME		(random_rand() % (SEND_INTERVAL))
 #define MAX_PAYLOAD_LEN		30
@@ -138,6 +135,7 @@ tcpip_handler(void)
 		str[uip_datalen()] = '\0';
 		reply++;
 		printf("DATA recv '%s' (s:%d, r:%d)\n", str, seq_id, reply);
+		leds_toggle(LEDS_RED);
 	}
 }
 /*---------------------------------------------------------------------------*/
@@ -206,12 +204,14 @@ PROCESS_THREAD(udp_client_process, ev, data)
 
 	PROCESS_PAUSE();
 
+	/* Turn on the LED */
+	leds_toggle(LEDS_RED);
+
 	/* Set the UDP server address */
-	if(TESTBED) {
-		uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x212, 0x4b00, 0x41e, 0x8e56);
-	} else {
-		uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x200, 0, 0, 1);
-	}
+
+	//uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x212, 0x4b00, 0x41e, 0x8e56);
+	uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x200, 0, 0, 1);
+
 
 	PRINTF("UDP client process started nbr:%d routes:%d\n",
 			NBR_TABLE_CONF_MAX_NEIGHBORS, UIP_CONF_MAX_ROUTES);
