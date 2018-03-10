@@ -124,3 +124,6 @@
 #undef RPL_CONF_STATS
 #define RPL_CONF_STATS 1
 #define PING_PROBE 1
+#ifndef MSPARCH
+#define MSPARCH 1
+#endif

@@ -65,7 +65,7 @@
  * The build system automatically compiles the resources in the corresponding sub-directory.
  */
 extern resource_t res_hello;
-#ifdef CPU_HAS_MSP430X
+#if MSPARCH
 extern resource_t res_cc2520_txpower;
 #else
 extern resource_t res_cc2538_txpower;
@@ -114,7 +114,7 @@ AUTOSTART_PROCESSES(&er_example_server, &udp_client_process);
 #define PERIOD 30 // period between packet send
 #endif
 
-#define START_INTERVAL		(30 * CLOCK_SECOND)  //delay before start the test 180 secs
+#define START_INTERVAL		(180 * CLOCK_SECOND)  //delay before start the test 180 secs
 #define SEND_INTERVAL		(PERIOD * CLOCK_SECOND)
 #define SEND_TIME		(random_rand() % (SEND_INTERVAL))
 #define MAX_PAYLOAD_LEN		30
@@ -210,9 +210,11 @@ PROCESS_THREAD(udp_client_process, ev, data)
 	/* Set the UDP server address */
 
 	//uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x212, 0x4b00, 0x41e, 0x8e56);
+#if MSPARCH
 	uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x200, 0, 0, 1);
-
-
+#else
+	uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x212, 0x4b00, 0x41e, 0x8e56);
+#endif
 	PRINTF("UDP client process started nbr:%d routes:%d\n",
 			NBR_TABLE_CONF_MAX_NEIGHBORS, UIP_CONF_MAX_ROUTES);
 
@@ -297,7 +299,7 @@ PROCESS_THREAD(er_example_server, ev, data)
 	rest_activate_resource(&res_flow_mod, "sd6wsn/flow-mod");
 	rest_activate_resource(&res_packet_in, "sd6wsn/packet-in");
 	rest_activate_resource(&res_routes, "sd6wsn/info-get/routes");
-#ifdef CPU_HAS_MSP430X
+#if MSPARCH
 	rest_activate_resource(&res_cc2520_txpower, "sd6wsn/info-get/txpower");
 #else
 	rest_activate_resource(&res_cc2538_txpower, "sd6wsn/info-get/txpower");

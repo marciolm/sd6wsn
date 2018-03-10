@@ -69,7 +69,7 @@ res_separate,
 res_push,
 res_event;
 
-#ifdef CPU_HAS_MSP430X
+#if MSPARCH
 extern resource_t res_cc2520_txpower;
 #else
 extern resource_t res_cc2538_txpower;
@@ -547,7 +547,7 @@ PROCESS_THREAD(er_example_server, ev, data)
 	rest_activate_resource(&res_routes, "sd6wsn/info-get/routes");
 	//rest_activate_resource(&res_routes_all, "sd6wsn/info-get/routesall");
 	rest_activate_resource(& res_node_mod, "sd6wsn/node-mod");
-#ifdef CPU_HAS_MSP430X
+#if MSPARCH
 	rest_activate_resource(&res_cc2520_txpower, "sd6wsn/info-get/txpower");
 #else
 	rest_activate_resource(&res_cc2538_txpower, "sd6wsn/info-get/txpower");

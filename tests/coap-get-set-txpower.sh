@@ -2,17 +2,17 @@ num_motes=6
 for ((i=2;i<=$num_motes;i++)); do 
 	echo "================================================================"
    	echo "Potencia atual do mote cooja$i  " 
-	~/libcoap/examples/coap-client -B 5 -m get coap://[fd00::200:0:0:$i]:5683/sd6wsn/txpower | tail -1
+	~/libcoap/examples/coap-client -B 5 -m get coap://[fd00::200:0:0:$i]:5683/sd6wsn/info-get/txpower | tail -1
 done
-~/libcoap/examples/coap-client -B 5 -m put coap://[fd00::200:0:0:2]:5683/sd6wsn/txpower?index=19
-~/libcoap/examples/coap-client -B 5 -m put coap://[fd00::200:0:0:3]:5683/sd6wsn/txpower?index=19
-~/libcoap/examples/coap-client -B 5 -m put coap://[fd00::200:0:0:4]:5683/sd6wsn/txpower?index=19
-~/libcoap/examples/coap-client -B 5 -m put coap://[fd00::200:0:0:5]:5683/sd6wsn/txpower?index=19
-~/libcoap/examples/coap-client -B 5 -m put coap://[fd00::200:0:0:6]:5683/sd6wsn/txpower?index=44
+~/libcoap/examples/coap-client -B 5 -m put coap://[fd00::200:0:0:2]:5683/sd6wsn/info-get/txpower?index=19
+~/libcoap/examples/coap-client -B 5 -m put coap://[fd00::200:0:0:3]:5683/sd6wsn/info-get/txpower?index=19
+~/libcoap/examples/coap-client -B 5 -m put coap://[fd00::200:0:0:4]:5683/sd6wsn/info-get/txpower?index=19
+~/libcoap/examples/coap-client -B 5 -m put coap://[fd00::200:0:0:5]:5683/sd6wsn/info-get/txpower?index=19
+~/libcoap/examples/coap-client -B 5 -m put coap://[fd00::200:0:0:6]:5683/sd6wsn/info-get/txpower?index=44
 for ((i=2;i<=$num_motes;i++)); do 
 	echo "================================================================"
    	echo "Potencia nova do mote cooja$i  " 
-	~/libcoap/examples/coap-client -B 5 -m get coap://[fd00::200:0:0:$i]:5683/sd6wsn/txpower | tail -1
+	~/libcoap/examples/coap-client -B 5 -m get coap://[fd00::200:0:0:$i]:5683/sd6wsn/info-get/txpower | tail -1
 done
 
 #	3    0x03 -> -18 dBm

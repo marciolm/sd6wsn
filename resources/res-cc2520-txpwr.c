@@ -41,7 +41,7 @@
 #include <string.h>
 #include "rest-engine.h"
 #include "dev/cc2520/cc2520.h"
-#define DEBUG 1
+#define DEBUG DEBUG_PRINT
 #include "net/ip/uip-debug.h"
 
 
