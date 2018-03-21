@@ -53,6 +53,10 @@
 #include "net/rpl/rpl.h"
 #include "sys/clock.h"
 #include "dev/leds.h"
+#include "res-udpdest.h"
+
+#define UIP_IP_BUF   ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
+
 
 #define DEBUG DEBUG_FULL
 #include "net/ip/uip-debug.h"
@@ -71,6 +75,7 @@ extern resource_t res_cc2520_txpower;
 extern resource_t res_cc2538_txpower;
 #endif
 extern resource_t res_cc2538_radio;
+extern resource_t res_udpdest;
 extern resource_t res_rssi;
 extern resource_t res_etx;
 extern resource_t res_routes;
@@ -99,10 +104,11 @@ extern resource_t res_radio;
 PROCESS(er_example_server, "Erbium Example Server");
 PROCESS(ping_sender_process, "Ping sender process");
 PROCESS(udp_client_process, "UDP sender process");
+PROCESS(udp_server_process, "UDP server process");
 #if PING_PROBE
-AUTOSTART_PROCESSES(&er_example_server, &ping_sender_process, &udp_client_process);
+AUTOSTART_PROCESSES(&er_example_server, &ping_sender_process, &udp_client_process, &udp_server_process );
 #else
-AUTOSTART_PROCESSES(&er_example_server, &udp_client_process);
+AUTOSTART_PROCESSES(&er_example_server, &udp_client_process, &udp_server_process );
 #endif
 
 #define UDP_CLIENT_PORT 8765
@@ -111,10 +117,10 @@ AUTOSTART_PROCESSES(&er_example_server, &udp_client_process);
 #define UDP_EXAMPLE_ID  190
 
 #ifndef PERIOD
-#define PERIOD 30 // period between packet send
+#define PERIOD 10 // 30 // period between packet send
 #endif
 
-#define START_INTERVAL		(180 * CLOCK_SECOND)  //delay before start the test 180 secs
+#define START_INTERVAL		(60 * CLOCK_SECOND)  //delay before start the test 180 secs
 #define SEND_INTERVAL		(PERIOD * CLOCK_SECOND)
 #define SEND_TIME		(random_rand() % (SEND_INTERVAL))
 #define MAX_PAYLOAD_LEN		30
@@ -124,6 +130,8 @@ static uip_ipaddr_t server_ipaddr;
 
 static int seq_id;
 static int reply;
+static struct uip_udp_conn *server_conn;
+static int node_last_octect;
 
 static void
 tcpip_handler(void)
@@ -136,6 +144,12 @@ tcpip_handler(void)
 		reply++;
 		printf("DATA recv '%s' (s:%d, r:%d)\n", str, seq_id, reply);
 		leds_toggle(LEDS_RED);
+#if SERVER_REPLY
+		PRINTF("DATA sending reply\n");
+		uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
+		uip_udp_packet_send(server_conn, "Reply              ", sizeof("Reply              "));
+		uip_create_unspecified(&server_conn->ripaddr);
+#endif
 	}
 }
 /*---------------------------------------------------------------------------*/
@@ -161,9 +175,10 @@ send_packet(void *ptr)
 #endif /* SERVER_REPLY */
 
 	seq_id++;
+	uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x200, 0, 0, destnode);
 	PRINTF("DATA send to %d 'Hello %d'\n",
 			server_ipaddr.u8[sizeof(server_ipaddr.u8) - 1], seq_id);
-	sprintf(buf, "Hello %d from client", seq_id);
+	sprintf(buf, "Hello %d from client %d", seq_id, node_last_octect);
 	uip_udp_packet_sendto(client_conn, buf, strlen(buf),
 			&server_ipaddr, UIP_HTONS(UDP_SERVER_PORT));
 }
@@ -174,6 +189,7 @@ print_local_addresses(void)
 {
 	int i;
 	uint8_t state;
+	uip_ipaddr_t *addr;
 
 	PRINTF("Client IPv6 addresses: ");
 	for(i = 0; i < UIP_DS6_ADDR_NB; i++) {
@@ -182,6 +198,10 @@ print_local_addresses(void)
 				(state == ADDR_TENTATIVE || state == ADDR_PREFERRED)) {
 			PRINT6ADDR(&uip_ds6_if.addr_list[i].ipaddr);
 			PRINTF("\n");
+			addr= &uip_ds6_if.addr_list[i].ipaddr;
+			node_last_octect = addr->u8[15];
+			destnode = 1;
+			PRINTF("last_octect:%u\n",node_last_octect);
 			/* hack to make address "final" */
 			if (state == ADDR_TENTATIVE) {
 				uip_ds6_if.addr_list[i].state = ADDR_PREFERRED;
@@ -207,9 +227,10 @@ PROCESS_THREAD(udp_client_process, ev, data)
 	/* Turn on the LED */
 	leds_toggle(LEDS_RED);
 
+	print_local_addresses();
+
 	/* Set the UDP server address */
 
-	//uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x212, 0x4b00, 0x41e, 0x8e56);
 #if MSPARCH
 	uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x200, 0, 0, 1);
 #else
@@ -218,7 +239,6 @@ PROCESS_THREAD(udp_client_process, ev, data)
 	PRINTF("UDP client process started nbr:%d routes:%d\n",
 			NBR_TABLE_CONF_MAX_NEIGHBORS, UIP_CONF_MAX_ROUTES);
 
-	print_local_addresses();
 
 	/* new connection with remote host */
 	client_conn = udp_new(NULL, UIP_HTONS(UDP_SERVER_PORT), NULL);
@@ -299,6 +319,7 @@ PROCESS_THREAD(er_example_server, ev, data)
 	rest_activate_resource(&res_flow_mod, "sd6wsn/flow-mod");
 	rest_activate_resource(&res_packet_in, "sd6wsn/packet-in");
 	rest_activate_resource(&res_routes, "sd6wsn/info-get/routes");
+	rest_activate_resource(&res_udpdest, "test/udpdest");
 #if MSPARCH
 	rest_activate_resource(&res_cc2520_txpower, "sd6wsn/info-get/txpower");
 #else
@@ -364,3 +385,41 @@ PROCESS_THREAD(ping_sender_process, ev, data)
 
 	PROCESS_END();
 }
+PROCESS_THREAD(udp_server_process, ev, data)
+{
+
+	PROCESS_BEGIN();
+
+	PROCESS_PAUSE();
+
+	PRINTF("UDP server started. nbr:%d routes:%d\n",
+			NBR_TABLE_CONF_MAX_NEIGHBORS, UIP_CONF_MAX_ROUTES);
+
+	//print_local_addresses();
+
+	/* The data sink runs with a 100% duty cycle in order to ensure high
+     packet reception rates. */
+	NETSTACK_MAC.off(1);
+
+	server_conn = udp_new(NULL, UIP_HTONS(UDP_CLIENT_PORT), NULL);
+	if(server_conn == NULL) {
+		PRINTF("No UDP connection available, exiting the process!\n");
+		PROCESS_EXIT();
+	}
+	udp_bind(server_conn, UIP_HTONS(UDP_SERVER_PORT));
+
+	PRINTF("Created a server connection with remote address ");
+	PRINT6ADDR(&server_conn->ripaddr);
+	PRINTF(" local/remote port %u/%u\n", UIP_HTONS(server_conn->lport),
+			UIP_HTONS(server_conn->rport));
+
+	while(1) {
+		PROCESS_YIELD();
+		if(ev == tcpip_event) {
+			tcpip_handler();
+		}
+	}
+
+	PROCESS_END();
+}
+/*---------------------------------------------------------------------------*/

@@ -40,7 +40,7 @@
 #include <string.h>
 #include "rest-engine.h"
 #include "er-coap-engine.h"
-#define DEBUG DEBUG_PRINT
+#define DEBUG DEBUG_NONE
 #include "net/ip/uip-debug.h"
 #include "res-flow-mod.h"
 #define FLOW_TABLE_SIZE 32

@@ -96,7 +96,7 @@ res_get_handler(void *request, void *response, char *buffer,
 			parent = nbr_table_next(rpl_parents, parent);
 			parent_index++;
 		}
-		PRINTF("parent_index:%d\n",parent_index);
+		//PRINTF("parent_index:%d\n",parent_index);
 	}
 	else
 	{ /* no DAG */
@@ -128,8 +128,8 @@ res_periodic_handler()
 
 	while(parent_counter < parent_index) {
 		etx_temp = rpl_get_parent_link_metric(etx_table[parent_counter].p);
-		PRINTF("parent: %x ",etx_table[parent_counter].nbr_addr);
-		PRINTF("etx_temp:%d\n",etx_temp);
+		//PRINTF("parent: %x ",etx_table[parent_counter].nbr_addr);
+		//PRINTF("etx_temp:%d\n",etx_temp);
 
 		if(etx_temp > etx_table[parent_counter].nbr_etx * 2
 				|| etx_temp < etx_table[parent_counter].nbr_etx / 2 ) {
