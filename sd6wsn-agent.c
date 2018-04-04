@@ -120,7 +120,7 @@ AUTOSTART_PROCESSES(&er_example_server, &udp_client_process, &udp_server_process
 #define PERIOD 10 // 30 // period between packet send
 #endif
 
-#define START_INTERVAL		(60 * CLOCK_SECOND)  //delay before start the test 180 secs
+#define START_INTERVAL		(300 * CLOCK_SECOND)  //delay before start the test 180 secs
 #define SEND_INTERVAL		(PERIOD * CLOCK_SECOND)
 #define SEND_TIME		(random_rand() % (SEND_INTERVAL))
 #define MAX_PAYLOAD_LEN		30
@@ -176,9 +176,9 @@ send_packet(void *ptr)
 
 	seq_id++;
 	uip_ip6addr(&server_ipaddr, UIP_DS6_DEFAULT_PREFIX, 0, 0, 0, 0x200, 0, 0, destnode);
-	PRINTF("DATA send to %d 'Hello %d'\n",
+	PRINTF("DATA send to :%d: 'Hello :%d:'\n",
 			server_ipaddr.u8[sizeof(server_ipaddr.u8) - 1], seq_id);
-	sprintf(buf, "Hello %d from client %d", seq_id, node_last_octect);
+	sprintf(buf, "from client :%d: Hello :%d: ",  node_last_octect, seq_id);
 	uip_udp_packet_sendto(client_conn, buf, strlen(buf),
 			&server_ipaddr, UIP_HTONS(UDP_SERVER_PORT));
 }

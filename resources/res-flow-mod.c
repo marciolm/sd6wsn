@@ -114,9 +114,9 @@ uip_ipaddr_t * get_next_hop_by_flow(uip_ipaddr_t *srcaddress,uip_ipaddr_t *dstad
 		noflow_packet_dstaddr[noflow_packet_count] = dstaddress->u8[15];
 		noflow_packet_srcport[noflow_packet_count] = srcport;
 		noflow_packet_dstport[noflow_packet_count] = dstport;
-		if(noflow_packet_count<NO_FLOW_ENTRIES){
-			noflow_packet_count++ ;
-		}
+	//	if(noflow_packet_count<NO_FLOW_ENTRIES){
+	//		noflow_packet_count++ ;
+	//	}
 /*		PRINTF("\npacket-in srcaddress:");
 		PRINT6ADDR(srcaddress);
 		PRINTF("\npacket-in dstaddress:");

@@ -85,7 +85,7 @@
 #endif
 
 #ifndef SERVER_REPLY
-#define SERVER_REPLY 1
+#define SERVER_REPLY 0
 #endif
 
 #ifndef SDWSN
