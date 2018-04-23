@@ -487,7 +487,7 @@
   <plugin>
     org.contikios.cooja.plugins.ScriptRunner
     <plugin_config>
-      <script>TIMEOUT(1200000, log.log("Total PRR " + totalPRR + "\n"));
+      <script>TIMEOUT(660000, log.log("Total PRR " + totalPRR + "\n"));
 packetsReceived= new Array();
 packetsSent = new Array();
 serverID = 1;

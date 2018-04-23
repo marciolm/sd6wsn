@@ -60,9 +60,9 @@
 #ifndef WITH_NON_STORING
 #define WITH_NON_STORING 0 /* Set this to run with non-storing mode */
 #undef UIP_CONF_MAX_ROUTES
-#define UIP_CONF_MAX_ROUTES 30   //30 original
+#define UIP_CONF_MAX_ROUTES 30 // 30 ok para 25 e 150   //30 original
 #undef NBR_TABLE_CONF_MAX_NEIGHBORS
-#define NBR_TABLE_CONF_MAX_NEIGHBORS 25 //20 // 30 original
+#define NBR_TABLE_CONF_MAX_NEIGHBORS 25 //25 ok para 25 e 150 //20 // 30 original
 #endif /* WITH_NON_STORING */
 
 /*Test for Wireshark */
@@ -126,7 +126,7 @@
 
 #define PING_PROBE 1
 
-#define SERVER_REPLY 0
+#define SERVER_REPLY 1
 
 #ifndef MSPARCH
 #define MSPARCH 1

@@ -11,7 +11,7 @@
   <simulation>
     <title>SDWSN</title>
     <speedlimit>1.0</speedlimit>
-    <randomseed>123456</randomseed>
+    <randomseed>214309</randomseed>
     <motedelay_us>1000000</motedelay_us>
     <radiomedium>
       org.contikios.cooja.radiomediums.UDGM
