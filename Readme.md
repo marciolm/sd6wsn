@@ -1,5 +1,5 @@
 
-SDWSN framework for 6LoWPAN using Contiki and Node.js controller
+SD6WSN: A SDWSN framework for 6LoWPAN using Contiki and Node.js controller
 ==============================================================================
 
 
